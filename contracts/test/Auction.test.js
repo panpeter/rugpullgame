@@ -127,4 +127,43 @@ describe("Auction contract", function () {
         expect(await ethers.provider.getBalance(account1.address)).to.equal(account1Balance.add(reward))
         expect(await ethers.provider.getBalance(account2.address)).to.equal(account2Balance.add(reward))
     })
+
+    it("emits Bid event", async function () {
+        let tx = await auctionContract.connect(account1).bid({ value: ONE_ETH })
+        let rc = await tx.wait()
+        let event = rc.events.find(event => event.event === 'Bid')
+        let [bidders, balance] = event.args
+        
+        expect(bidders).to.be.eql([account1.address])
+        expect(balance).to.be.equal(ONE_ETH)
+    })
+
+    it("emits Bid event with multiple bidders", async function () {
+        await ethers.provider.send("evm_setAutomine", [false])
+        await auctionContract.connect(account1).bid({ value: ONE_ETH })
+        await ethers.provider.send("evm_setAutomine", [true])
+        let tx = await auctionContract.connect(account2).bid({ value: ONE_ETH })
+        let rc = await tx.wait()
+        let event = rc.events.find(event => event.event === 'Bid')
+        let [bidders, balance] = event.args
+        
+        expect(bidders).to.be.eql([account1.address, account2.address])
+        expect(balance).to.be.equal(ONE_ETH.mul(2))
+    })
+
+    it("emits Award event", async function () {
+        await auctionContract.connect(account1).bid({ value: ONE_ETH })
+        await auctionContract.connect(account2).bid({ value: ONE_ETH })
+        for (let i = 0; i < 10; i++) {
+            await ethers.provider.send("evm_mine")
+        }
+        
+        let tx = await auctionContract.connect(account2).claim()
+        let rc = await tx.wait()
+        let event = rc.events.find(event => event.event === 'Award')
+        let [bidders, reward] = event.args
+        
+        expect(bidders).to.be.eql([account2.address])
+        expect(reward).to.be.equal(ONE_ETH.mul(2))
+    })
 })

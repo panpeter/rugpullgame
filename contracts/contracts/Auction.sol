@@ -5,6 +5,9 @@ pragma solidity ^0.8.0;
 import "hardhat/console.sol";
 
 contract Auction {
+    event Bid(address payable[] bidders, uint256 balance);
+    event Award(address payable[] bidders, uint256 reward);
+
     uint256 public constant BID_PRICE = 1 ether;
     uint256 public constant CLAIM_BLOCKS = 10;
 
@@ -20,6 +23,8 @@ contract Auction {
         }
 
         lastBidders.push(payable(msg.sender));
+
+        emit Bid(lastBidders, address(this).balance);
     }
 
     function getLastBidders() public view returns(address payable[] memory) {
@@ -36,6 +41,9 @@ contract Auction {
         for (uint256 i = 0; i < lastBidders.length; i++) {
             lastBidders[i].transfer(reward);
         }
+
+        emit Award(lastBidders, reward);
+
         delete lastBidders;
     }
 }
