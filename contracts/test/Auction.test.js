@@ -10,6 +10,7 @@ describe("Auction contract", function () {
     let account2
 
     const ONE_ETH = ethers.utils.parseEther("1")
+    const DEV_FEE = ethers.utils.parseEther("0.02")
 
     const auctionBalance = function () {
         return ethers.provider.getBalance(auctionContract.address)
@@ -36,7 +37,13 @@ describe("Auction contract", function () {
 
     it("bid increases auction balance", async function () {
         await auctionContract.connect(account1).bid({ value: ONE_ETH })
-        expect(await auctionBalance()).to.equal(ONE_ETH)
+        expect(await auctionBalance()).to.equal(ONE_ETH.sub(DEV_FEE))
+    })
+
+    it("dev address is set to deployer", async function () {
+        let ownerBalance = await ethers.provider.getBalance(owner.address)
+        await auctionContract.connect(account1).bid({ value: ONE_ETH })
+        expect(await ethers.provider.getBalance(owner.address)).to.equal(ownerBalance.add(DEV_FEE))
     })
 
     it("bid adds bidder to lastBidders", async function () {
@@ -92,7 +99,7 @@ describe("Auction contract", function () {
         let account1Balance = await ethers.provider.getBalance(account1.address)
         await auctionContract.connect(account2).claim()
 
-        expect(await ethers.provider.getBalance(account1.address)).to.equal(account1Balance.add(ONE_ETH))
+        expect(await ethers.provider.getBalance(account1.address)).to.equal(account1Balance.add(ONE_ETH.sub(DEV_FEE)))
     })
 
     it("rewards whole balance", async function () {
@@ -106,7 +113,7 @@ describe("Auction contract", function () {
         let account1Balance = await ethers.provider.getBalance(account1.address)
         await auctionContract.connect(owner).claim()
 
-        expect(await ethers.provider.getBalance(account1.address)).to.equal(account1Balance.add(ONE_ETH.mul(3)))
+        expect(await ethers.provider.getBalance(account1.address)).to.equal(account1Balance.add(ONE_ETH.sub(DEV_FEE).mul(3)))
     })
 
     it("splits the reward", async function () {
@@ -123,7 +130,7 @@ describe("Auction contract", function () {
         let account2Balance = await ethers.provider.getBalance(account2.address)
         await auctionContract.connect(owner).claim()
 
-        let reward = ONE_ETH.mul(3).div(2)
+        let reward = ONE_ETH.sub(DEV_FEE).mul(3).div(2)
         expect(await ethers.provider.getBalance(account1.address)).to.equal(account1Balance.add(reward))
         expect(await ethers.provider.getBalance(account2.address)).to.equal(account2Balance.add(reward))
     })
@@ -135,7 +142,7 @@ describe("Auction contract", function () {
         let [bidders, balance] = event.args
         
         expect(bidders).to.be.eql([account1.address])
-        expect(balance).to.be.equal(ONE_ETH)
+        expect(balance).to.be.equal(ONE_ETH.sub(DEV_FEE))
     })
 
     it("emits Bid event with multiple bidders", async function () {
@@ -148,7 +155,7 @@ describe("Auction contract", function () {
         let [bidders, balance] = event.args
         
         expect(bidders).to.be.eql([account1.address, account2.address])
-        expect(balance).to.be.equal(ONE_ETH.mul(2))
+        expect(balance).to.be.equal(ONE_ETH.sub(DEV_FEE).mul(2))
     })
 
     it("emits Award event", async function () {
@@ -164,6 +171,28 @@ describe("Auction contract", function () {
         let [bidders, reward] = event.args
         
         expect(bidders).to.be.eql([account2.address])
-        expect(reward).to.be.equal(ONE_ETH.mul(2))
+        expect(reward).to.be.equal(ONE_ETH.sub(DEV_FEE).mul(2))
+    })
+
+    it("does not allow to set dev address", async function () {
+        await expect(
+            auctionContract.connect(account1).setDevAddress(account1.address)
+        ).to.be.revertedWith("Ownable: caller is not the owner")
+    })
+
+    it("allows to set dev address", async function () {
+        await auctionContract.connect(owner).setDevAddress(account1.address)
+
+        let account1Balance = await ethers.provider.getBalance(account1.address)
+        await auctionContract.connect(account2).bid({ value: ONE_ETH })
+        expect(await ethers.provider.getBalance(account1.address)).to.equal(account1Balance.add(DEV_FEE))
+    })
+
+    it("sends dev fee every time", async function () {
+        let ownerBalance = await ethers.provider.getBalance(owner.address)
+        await auctionContract.connect(account1).bid({ value: ONE_ETH })
+        await auctionContract.connect(account2).bid({ value: ONE_ETH })
+
+        expect(await ethers.provider.getBalance(owner.address)).to.equal(ownerBalance.add(DEV_FEE.mul(2)))
     })
 })

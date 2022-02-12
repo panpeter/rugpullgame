@@ -1,17 +1,24 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "hardhat/console.sol";
 
-contract Auction {
+contract Auction is Ownable {
     event Bid(address payable[] bidders, uint256 balance);
     event Award(address payable[] bidders, uint256 reward);
 
     uint256 public constant BID_PRICE = 1 ether;
+    uint256 public constant DEV_FEE = 0.02 ether; // 2%
     uint256 public constant CLAIM_BLOCKS = 10;
 
     uint256 private lastBidBlock = 0;
     address payable[] private lastBidders;
+    address payable private devAddress;
+
+    constructor() {
+        devAddress = payable(_msgSender());
+    }
 
     function bid() external payable {
         require(msg.value >= BID_PRICE, "Bid price must be 1 ether or more");
@@ -22,6 +29,7 @@ contract Auction {
         }
 
         lastBidders.push(payable(msg.sender));
+        devAddress.transfer(DEV_FEE);
 
         emit Bid(lastBidders, address(this).balance);
     }
@@ -44,5 +52,9 @@ contract Auction {
         emit Award(lastBidders, reward);
 
         delete lastBidders;
+    }
+
+    function setDevAddress(address newAddress) external onlyOwner {
+        devAddress = payable(newAddress);
     }
 }
