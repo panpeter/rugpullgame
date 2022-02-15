@@ -1,10 +1,10 @@
 async function main() {
-  const contractFactory = await ethers.getContractFactory("Auction")
+  const contractFactory = await ethers.getContractFactory("RugPullGame")
 
   // Start deployment, returning a promise that resolves to a contract object
-  const auctionContract = await contractFactory.deploy()
-  await auctionContract.deployed()
-  console.log("Contract deployed to address:", auctionContract.address)
+  const contract = await contractFactory.deploy()
+  await contract.deployed()
+  console.log("Contract deployed to address:", contract.address)
 }
 
 main()
