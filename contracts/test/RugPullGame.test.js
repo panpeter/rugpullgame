@@ -39,25 +39,25 @@ describe("RugPullGame contract", function () {
         expect(await contractBalance()).to.equal(ONE_ETH)
     })
 
-    it("adds pumper to last pumpers", async function () {
+    it("adds pumper to latest pumpers", async function () {
         await contract.connect(account1).pump({ value: ONE_ETH })
-        expect(await contract.getLastPumpers()).to.eql([account1.address]);
+        expect(await contract.getLatestPumpers()).to.eql([account1.address]);
     })
 
-    it("can have multiple pumpers", async function () {
+    it("can have multiple latest pumpers", async function () {
         await ethers.provider.send("evm_setAutomine", [false])
         await contract.connect(account1).pump({ value: ONE_ETH })
         await ethers.provider.send("evm_setAutomine", [true])
         await contract.connect(account2).pump({ value: ONE_ETH })
 
-        expect(await contract.getLastPumpers()).to.eql([account1.address, account2.address])
+        expect(await contract.getLatestPumpers()).to.eql([account1.address, account2.address])
     })
 
-    it("holds only recent pumpers", async function () {
+    it("holds only latest pumpers", async function () {
         await contract.connect(account1).pump({ value: ONE_ETH })
         await contract.connect(account2).pump({ value: ONE_ETH })
 
-        expect(await contract.getLastPumpers()).to.eql([account2.address])
+        expect(await contract.getLatestPumpers()).to.eql([account2.address])
     })
 
     it("reverts rug pull when not enough blocks passed", async function () {
