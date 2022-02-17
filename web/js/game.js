@@ -1,45 +1,102 @@
 // Helper functions
 
-const show = function (elem) { elem.style.display = 'block' }
+const removeHide = function (elem) { elem.style.display = '' }
 const hide = function (elem) { elem.style.display = 'none' }
 const disable = function (elem) { elem.setAttribute("disabled", "disabled") }
 const enable = function (elem) { elem.removeAttribute("disabled") }
 
 // Constants
-const contractABI = [{ anonymous: !1, inputs: [{ indexed: !0, internalType: "address", name: "previousOwner", type: "address" }, { indexed: !0, internalType: "address", name: "newOwner", type: "address" }], name: "OwnershipTransferred", type: "event" }, { anonymous: !1, inputs: [{ indexed: !1, internalType: "address payable[]", name: "pumpers", type: "address[]" }, { indexed: !1, internalType: "uint256", name: "balance", type: "uint256" }], name: "Pump", type: "event" }, { anonymous: !1, inputs: [{ indexed: !1, internalType: "address payable[]", name: "pumpers", type: "address[]" }, { indexed: !1, internalType: "uint256", name: "reward", type: "uint256" }], name: "RugPull", type: "event" }, { inputs: [], name: "PUMP_FEE", outputs: [{ internalType: "uint256", name: "", type: "uint256" }], stateMutability: "view", type: "function" }, { inputs: [], name: "RUG_PULL_BLOCKS", outputs: [{ internalType: "uint256", name: "", type: "uint256" }], stateMutability: "view", type: "function" }, { inputs: [], name: "getLatestPumpers", outputs: [{ internalType: "address payable[]", name: "", type: "address[]" }], stateMutability: "view", type: "function" }, { inputs: [], name: "owner", outputs: [{ internalType: "address", name: "", type: "address" }], stateMutability: "view", type: "function" }, { inputs: [], name: "pullTheRug", outputs: [], stateMutability: "nonpayable", type: "function" }, { inputs: [], name: "pump", outputs: [], stateMutability: "payable", type: "function" }, { inputs: [], name: "renounceOwnership", outputs: [], stateMutability: "nonpayable", type: "function" }, { inputs: [{ internalType: "address", name: "newOwner", type: "address" }], name: "transferOwnership", outputs: [], stateMutability: "nonpayable", type: "function" }]
+
+const contractABI = [{ anonymous: !1, inputs: [{ indexed: !0, internalType: "address", name: "previousOwner", type: "address" }, { indexed: !0, internalType: "address", name: "newOwner", type: "address" }], name: "OwnershipTransferred", type: "event" }, { anonymous: !1, inputs: [{ indexed: !1, internalType: "address payable", name: "pumper", type: "address" }, { indexed: !1, internalType: "uint256", name: "balance", type: "uint256" }], name: "Pump", type: "event" }, { anonymous: !1, inputs: [{ indexed: !1, internalType: "address payable[]", name: "pumpers", type: "address[]" }, { indexed: !1, internalType: "uint256", name: "reward", type: "uint256" }], name: "RugPull", type: "event" }, { inputs: [], name: "PUMP_FEE", outputs: [{ internalType: "uint256", name: "", type: "uint256" }], stateMutability: "view", type: "function" }, { inputs: [], name: "RUG_PULL_BLOCKS", outputs: [{ internalType: "uint256", name: "", type: "uint256" }], stateMutability: "view", type: "function" }, { inputs: [], name: "getLatestPumpers", outputs: [{ internalType: "address payable[]", name: "", type: "address[]" }], stateMutability: "view", type: "function" }, { inputs: [], name: "owner", outputs: [{ internalType: "address", name: "", type: "address" }], stateMutability: "view", type: "function" }, { inputs: [], name: "pullTheRug", outputs: [], stateMutability: "nonpayable", type: "function" }, { inputs: [], name: "pump", outputs: [], stateMutability: "payable", type: "function" }, { inputs: [], name: "renounceOwnership", outputs: [], stateMutability: "nonpayable", type: "function" }, { inputs: [{ internalType: "address", name: "newOwner", type: "address" }], name: "transferOwnership", outputs: [], stateMutability: "nonpayable", type: "function" }]
 const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
 // const web3 = AlchemyWeb3.createAlchemyWeb3("https://eth-ropsten.alchemyapi.io/v2/W6UzXHDjzAdfELyjMpS9t_YfTJXxbkF6")
-const web3 = AlchemyWeb3.createAlchemyWeb3("http://127.0.0.1:8545/")
+const web3 = AlchemyWeb3.createAlchemyWeb3("ws://127.0.0.1:8545/")
 
 // HTML elements
 
 const main = document.getElementById("main")
 const timeLeftView = document.getElementById("time_left_view")
-const pendingWinnersView = document.getElementById("pending_winners_view")
+const rewardPoolView = document.getElementById("reward_pool_view")
+const pendingWinnersView = document.getElementById("pending_winners_text")
 const feedbackView = document.getElementById("feedback")
 const connectLink = document.getElementById("connect_link")
 const pumpLink = document.getElementById("pump_link")
 const pullTheRugLink = document.getElementById("pull_the_rug_link")
 const pullTheRugButton = document.getElementById("pull_the_rug_button")
+const pumpersTable = document.getElementById("pumpers")
 
 // State
 
 let state = {
     connected: false,
     walletAddress: null,
+    pumpers: [],
+    balance: 0,
+    latestPumpBlock: 0,
+    latestBlock: 0,
     feedback: null,
 }
 
+const buildPendingWinnersText = function (pumpers) {
+    console.log(pumpers)
+    if (pumpers.length == 0) return ""
+    let candidates = pumpers.slice().reverse()
+    let firstWinner = candidates[0]
+    let pendingWinners = []
+    for (let i = 0; i < candidates.length; i++) {
+        let candidate = candidates[i]
+        if (candidate.blockNumber == firstWinner.blockNumber) {
+            pendingWinners.push(candidate)
+        }
+    }
+
+    return pendingWinners.map(pumper => trimAddress(pumper.address)).join(" and ")
+}
+
+const buildPumpersHtml = function (pumpers) {
+    return pumpers.slice().reverse().map(pumper => buildPumperHtml(pumper)).join("")
+}
+
+const buildPumperHtml = function (pumper) {
+    let html = "<tr>"
+
+    html += "<td>"
+    html += pumper.blockNumber
+    html += "</td>"
+
+    // TODO Link to ethscanner
+    html += "<td>"
+    html += trimAddress(pumper.address)
+    html += "</td>"
+
+    html += "<td>"
+    html += web3.utils.fromWei(pumper.balance.toString()) + " MATIC"
+    html += "</td>"
+
+    html += "</tr>"
+
+    return html
+}
+
+const trimAddress = function (address) {
+    return address.substring(0, 6) + "…" + address.substring(38)
+}
+
 const updateUI = function (state) {
-    if (state.connected) hide(connectLink); else show(connectLink)
-    if (state.connected) show(pumpLink); else hide(pumpLink)
+    if (state.connected) hide(connectLink); else removeHide(connectLink)
+    if (state.connected) removeHide(pumpLink); else hide(pumpLink)
 
     if (state.feedback != null) {
         feedbackView.innerText = state.feedback
-        show(feedbackView)
+        removeHide(feedbackView)
     } else {
         hide(feedbackView)
     }
+
+    pendingWinnersView.innerText = buildPendingWinnersText(state.pumpers)
+    timeLeftView.innerHTML = state.latestPumpBlock
+    rewardPoolView.innerHTML = web3.utils.fromWei(state.balance.toString()) + " MATIC"
+    pumpersTable.innerHTML = buildPumpersHtml(state.pumpers)
 }
 
 // Internal events
@@ -76,6 +133,37 @@ const handlePumpErrorEvent = function (error) {
     updateUI(state)
 }
 
+const handlePumpSubscriptionErrorEvent = function (error) {
+    state.feedback = error
+    updateUI(state)
+}
+
+const handlePumpEventDataEvent = function (event) {
+    state.balance = event.returnValues.balance
+    state.latestPumpBlock = event.blockNumber
+
+    state.pumpers.push({
+        blockNumber: event.blockNumber,
+        address: event.returnValues.pumper,
+        balance: event.returnValues.balance,
+    })
+
+    updateUI(state)
+}
+
+const handlePumpEventChangedEvent = function (event) {
+    state.balance = event.returnValues.balance
+    state.latestPumpBlock = event.blockNumber
+
+    state.pumpers.push({
+        blockNumber: event.blockNumber,
+        address: event.returnValues.address,
+        balance: event.returnValues.balance,
+    })
+
+    updateUI(state)
+}
+
 // UI triggered actions
 
 const connectWallet = async function () {
@@ -93,7 +181,6 @@ const connectWallet = async function () {
 }
 
 const pump = async function () {
-    window.contract = await new web3.eth.Contract(contractABI, contractAddress)
     let userAddress = window.ethereum.selectedAddress
     let value = web3.utils.toHex(web3.utils.toWei('1', 'ether'))
 
@@ -101,7 +188,7 @@ const pump = async function () {
         to: contractAddress,
         from: userAddress,
         value: value,
-        'data': window.contract.methods.pump().encodeABI()
+        data: window.contract.methods.pump().encodeABI()
     }
 
     try {
@@ -138,16 +225,30 @@ const setup = async function () {
     hide(pumpLink)
     hide(pullTheRugLink)
     hide(feedbackView)
-    show(connectLink)
+    removeHide(connectLink)
 
     connectLink.onclick = function () { connectWallet() }
     pumpLink.onclick = function () { pump() }
 
     window.ethereum.on('accountsChanged', async () => { checkConnection() })
+    window.contract = await new web3.eth.Contract(contractABI, contractAddress)
+
+    // TODO: filter to latest 100?
+    let options = {
+        filter: {
+            value: [],
+        },
+        fromBlock: 0
+    }
+
+    window.contract.events.Pump(options)
+        .on('data', event => handlePumpEventDataEvent(event))
+        .on('changed', event => handlePumpEventChangedEvent(event))
+        .on('error', err => handlePumpSubscriptionErrorEvent(err))
 
     checkConnection()
 
-    show(main)
+    removeHide(main)
 }
 
 setup()
