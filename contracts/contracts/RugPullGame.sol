@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "hardhat/console.sol";
 
 contract RugPullGame is Ownable {
-    event Pump(address payable[] pumpers, uint256 balance);
+    event Pump(address payable pumper, uint256 balance);
     event RugPull(address payable[] pumpers, uint256 reward);
 
     uint256 public constant PUMP_FEE = 1 ether;
@@ -24,7 +24,7 @@ contract RugPullGame is Ownable {
 
         latestPumpers.push(payable(msg.sender));
 
-        emit Pump(latestPumpers, address(this).balance);
+        emit Pump(payable(msg.sender), address(this).balance);
     }
 
     function getLatestPumpers() public view returns(address payable[] memory) {

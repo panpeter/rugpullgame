@@ -118,22 +118,20 @@ describe("RugPullGame contract", function () {
         let tx = await contract.connect(account1).pump({ value: ONE_ETH })
         let rc = await tx.wait()
         let event = rc.events.find(event => event.event === 'Pump')
-        let [pumpers, balance] = event.args
+        let [pumper, balance] = event.args
         
-        expect(pumpers).to.be.eql([account1.address])
+        expect(pumper).to.be.eql(account1.address)
         expect(balance).to.be.equal(ONE_ETH)
     })
 
-    it("emits Pump event with multiple pumpers", async function () {
-        await ethers.provider.send("evm_setAutomine", [false])
+    it("emits Pump event with correct balance", async function () {
         await contract.connect(account1).pump({ value: ONE_ETH })
-        await ethers.provider.send("evm_setAutomine", [true])
         let tx = await contract.connect(account2).pump({ value: ONE_ETH })
         let rc = await tx.wait()
         let event = rc.events.find(event => event.event === 'Pump')
-        let [pumpers, balance] = event.args
+        let [pumper, balance] = event.args
         
-        expect(pumpers).to.be.eql([account1.address, account2.address])
+        expect(pumper).to.be.eql(account2.address)
         expect(balance).to.be.equal(ONE_ETH.mul(2))
     })
 
