@@ -13,12 +13,18 @@
       text-align: center;
     }
 
-    .header {
-      margin-bottom: 0px;
+    .panel {
+      margin-top: 0.75rem;
+    }
+
+    .game-state {
+      margin-top: 2rem;
+      display: flex;
+      justify-content: space-around;
     }
 
     .state {
-      margin-top: 0.75rem;
+      margin-top: 1.5rem;
     }
 
     .button_container {
@@ -30,9 +36,9 @@
       display: block;
     }
 
-    details {
-      text-align: left;
-      margin-top: 1.5rem;
+    table td,
+    table th {
+      text-align: center;
     }
   </style>
 </head>
@@ -40,27 +46,44 @@
 <body>
   <main id="main" style="display: none;">
     <div class="panel">
-      <h1 id="time_left_view">00:00</h1>
-      <p class="header">REWARD POOL</p>
-      <h3 class="state" id="reward_pool_view">0 MATIC</h3>
-      <p class="header">PENDING WINNER</p>
-      <p class="state" id="pending_winners_view">
-        🇵🇱 0x0000000000000000000000000000000000000000 
-      </p>
+      <p class="info">If nobody pumps <code id="pending_winners_text"></code> can do a RUG PULL</p>
+      <div class="game-state">
+        <div>
+          <p class="header">REMAINING BLOCKS</p>
+          <h2 class="state" id="time_left_view">0</h3>
+        </div>
+        <div>
+          <p class="header">REWARD POOL</p>
+          <h2 class="state" id="reward_pool_view">0 MATIC</h3>
+        </div>
+      </div>
     </div>
 
     <code class="feedback" id="feedback">Wrong</code>
-    
+
     <div class="button_container">
       <a id="connect_link"><button id="connect_button">CONNECT</button></a>
       <a id="pump_link"><button id="pump_button">PUMP</button></a>
       <a id="pull_the_rug_link"><button id="pull_the_rug_button">PULL THE RUG</button></a>
     </div>
 
+    <h4>PUMPERS</h4>
+    <table>
+      <thead>
+        <tr>
+          <th>Block</th>
+          <th>Address</th>
+          <th>Reward pool</th>
+        </tr>
+      </thead>
+      <tbody id="pumpers">
+      </tbody>
+    </table>
+
     <footer>
       <p>rugpullgame.io was created by <a href="https://piotrwilczek.com">Piotr Wilczek</a> and the code is publicly
         accessible at <a href="">GitHub</a>.</p>
-        <p>Contract address: <a href="">0xa12820C2B7C02b37FeD079443221531Ce09e8155</a></p>
+      <p>Contract address: <a href="">0xa12820C2B7C02b37FeD079443221531Ce09e8155</a></p>
     </footer>
   </main>
 </body>
