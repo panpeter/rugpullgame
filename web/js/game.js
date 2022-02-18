@@ -173,13 +173,13 @@ const updateRugPullPanel = function (state) {
         hide(multiRugPullInfo)
         removeHide(singleRugPullInfo)
 
-        singleRugPullAddress.innerText = trimAddress(rugPull.pumpers[0])
+        singleRugPullAddress.innerText = parseAddress(rugPull.pumpers[0])
         singleRugPullReward.innerText = web3.utils.fromWei(rugPull.reward.toString())
     } else {
         hide(singleRugPullInfo)
         removeHide(multiRugPullInfo)
 
-        multiRugPullAddresses.innerText = rugPull.pumpers.map(pumper => trimAddress(pumper)).join(" and ")
+        multiRugPullAddresses.innerText = rugPull.pumpers.map(pumper => parseAddress(pumper)).join(" and ")
         multiRugPullReward.innerText = web3.utils.fromWei(rugPull.reward.toString())
     }
 }
@@ -192,7 +192,7 @@ const updatePumpersTable = function (state) {
 // ========== HTML BUILDER FUNCTIONS ==========
 
 const buildPendingWinnersText = function (state) {
-    return getPendingWinners(state).map(pumper => trimAddress(pumper.address)).join(" and ")
+    return getPendingWinners(state).map(pumper => parseAddress(pumper.address)).join(" and ")
 }
 
 const buildPumperHtml = function (pumper) {
@@ -204,7 +204,7 @@ const buildPumperHtml = function (pumper) {
 
     // TODO Link to ethscanner
     html += "<td>"
-    html += trimAddress(pumper.address)
+    html += parseAddress(pumper.address)
     html += "</td>"
 
     html += "<td>"
@@ -216,7 +216,9 @@ const buildPumperHtml = function (pumper) {
     return html
 }
 
-const trimAddress = function (address) {
+const parseAddress = function (address) {
+    if (address == state.walletAddress) return "you"
+
     return address.substring(0, 6) + "…" + address.substring(38)
 }
 
