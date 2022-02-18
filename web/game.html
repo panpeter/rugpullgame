@@ -45,7 +45,7 @@
 
 <body>
   <main id="main" style="display: none;">
-    <div class="panel">
+    <div class="panel" id="game_progress_panel">
       <p class="info">If nobody pumps <code id="pending_winners_text"></code> can do a rug pull</p>
       <div class="game-state">
         <div>
@@ -59,12 +59,23 @@
       </div>
     </div>
 
+    <div class="panel" id="rug_pull_panel">
+      <h1>🚨 RUG PULL 🚨</h1>
+      <p id="single_rug_pull_info">
+        <code id="single_rug_pull_address"></code> has run away with <span id="single_rug_pull_reward"></span> MATIC
+      </p>
+      <p id="multi_rug_pull_info">
+        <code id="multi_rug_pull_addresses"></code>have run away with <span id="multi_rug_pull_reward"></span> each
+      </p>
+    </div>
+
     <code class="feedback" id="feedback">Wrong</code>
 
     <div class="button_container">
       <a id="connect_link"><button id="connect_button">CONNECT</button></a>
       <a id="pump_link"><button id="pump_button">PUMP</button></a>
-      <a id="pull_the_rug_link"><button id="pull_the_rug_button">PULL THE RUG</button></a>
+      <a id="pull_the_rug_link"><button id="pull_the_rug_button">RUG PULL</button></a>
+      <a id="start_over_link"><button id="start_over_button">Start over</button></a>
     </div>
 
     <h4>PUMPERS</h4>
