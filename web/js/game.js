@@ -9,6 +9,14 @@ const hide = function (elem) { elem.classList.add("hide") }
 const disable = function (elem) { elem.setAttribute("disabled", "disabled") }
 const enable = function (elem) { elem.removeAttribute("disabled") }
 
+const debounce = (context, func, delay) => {
+    let timeout
+    return (...arguments) => {
+        if (timeout) clearTimeout(timeout)
+        timeout = setTimeout(() => { func.apply(context, arguments) }, delay)
+    }
+}
+
 // ========== CONSTANTS ==========
 
 const contractABI = [{ anonymous: !1, inputs: [{ indexed: !0, internalType: "address", name: "previousOwner", type: "address" }, { indexed: !0, internalType: "address", name: "newOwner", type: "address" }], name: "OwnershipTransferred", type: "event" }, { anonymous: !1, inputs: [{ indexed: !1, internalType: "address payable", name: "pumper", type: "address" }, { indexed: !1, internalType: "uint256", name: "balance", type: "uint256" }], name: "Pump", type: "event" }, { anonymous: !1, inputs: [{ indexed: !1, internalType: "address payable[]", name: "pumpers", type: "address[]" }, { indexed: !1, internalType: "uint256", name: "reward", type: "uint256" }], name: "RugPull", type: "event" }, { inputs: [], name: "PUMP_FEE", outputs: [{ internalType: "uint256", name: "", type: "uint256" }], stateMutability: "view", type: "function" }, { inputs: [], name: "RUG_PULL_BLOCKS", outputs: [{ internalType: "uint256", name: "", type: "uint256" }], stateMutability: "view", type: "function" }, { inputs: [], name: "getLatestPumpers", outputs: [{ internalType: "address payable[]", name: "", type: "address[]" }], stateMutability: "view", type: "function" }, { inputs: [], name: "owner", outputs: [{ internalType: "address", name: "", type: "address" }], stateMutability: "view", type: "function" }, { inputs: [], name: "pullTheRug", outputs: [], stateMutability: "nonpayable", type: "function" }, { inputs: [], name: "pump", outputs: [], stateMutability: "payable", type: "function" }, { inputs: [], name: "renounceOwnership", outputs: [], stateMutability: "nonpayable", type: "function" }, { inputs: [{ internalType: "address", name: "newOwner", type: "address" }], name: "transferOwnership", outputs: [], stateMutability: "nonpayable", type: "function" }]
@@ -102,10 +110,18 @@ const canDoRugPull = function (state) {
 // ========== UPDATE UI FUNCTIONS ==========
 
 const updateUI = function (state) {
-    if (state.latestBlock == 0 || state.rugPullBlocks == 0 || state.pumpFee == 0) {
-        return
-    }
+    if (state.latestBlock == 0) return
+    if (state.rugPullBlocks == 0) return
+    if (state.pumpFee == 0) return
+    if (state.pumpers.lenght == 0) return
+    if (state.rugPulls.lenght == 0) return
 
+    debouncedUpdateUINow(state)
+}
+
+const debouncedUpdateUINow = debounce(this, state => updateUiNow(state), 100)
+
+const updateUiNow = function (state) {
     main.style.display = ""
     hide(loadingInfo)
 
