@@ -28,6 +28,7 @@ const addressLinkPrefix = "https://polygonscan.com/address/"
 
 const main = document.getElementById("main")
 const loadingInfo = document.getElementById("loading_info")
+const metamaskError = document.getElementById("metamask_error")
 const gameProgressPanel = document.getElementById("game_progress_panel")
 const rugPullPanel = document.getElementById("rug_pull_panel")
 const userRugPullInfo = document.getElementById("user_rug_pull_info")
@@ -490,6 +491,12 @@ const dismissFeedback = function() {
 // ========== SETUP ==========
 
 const setup = async function () {
+    if (!window.ethereum) {
+        hide(loadingInfo)
+        metamaskError.style.display = "block"
+        return
+    }
+    
     hide(gameProgressPanel)
     hide(rugPullPanel)
     hide(pumpLink)
