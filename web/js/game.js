@@ -102,7 +102,7 @@ const canDoRugPull = function (state) {
 // ========== UPDATE UI FUNCTIONS ==========
 
 const updateUI = function (state) {
-    if (state.latestBlock == 0) {
+    if (state.latestBlock == 0 || state.rugPullBlocks == 0 || state.pumpFee == 0) {
         return
     }
 
