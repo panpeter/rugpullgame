@@ -69,7 +69,7 @@ let state = {
 }
 
 const getPendingWinners = function (state) {
-    if (state.pumpers.lenght == 0) return []
+    if (state.pumpers.length == 0) return []
 
     let candidates = state.pumpers.slice().reverse()
     let firstWinner = candidates[0]
@@ -94,11 +94,11 @@ const isRugPull = function (state) {
 
 const getPreviousRugPull = function (state) {
     let rugPulls = state.rugPulls
-    if (rugPulls.lenght < 2) {
+    if (rugPulls.length < 2) {
         return null
     }
 
-    return rugPulls[rugPulls.lenght - 2]
+    return rugPulls[rugPulls.length - 2]
 }
 
 const getRugPullRemainingBlocks = function (state) {
@@ -117,8 +117,8 @@ const updateUI = function (state) {
     if (state.latestBlock == 0) return
     if (state.rugPullBlocks == 0) return
     if (state.pumpFee == 0) return
-    if (state.pumpers.lenght == 0) return
-    if (state.rugPulls.lenght == 0) return
+    if (state.pumpers.length == 0) return
+    if (state.rugPulls.length == 0) return
 
     debouncedUpdateUINow(state)
 }
