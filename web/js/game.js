@@ -22,6 +22,7 @@ const debounce = (context, func, delay) => {
 const contractABI = [{ anonymous: !1, inputs: [{ indexed: !0, internalType: "address", name: "previousOwner", type: "address" }, { indexed: !0, internalType: "address", name: "newOwner", type: "address" }], name: "OwnershipTransferred", type: "event" }, { anonymous: !1, inputs: [{ indexed: !1, internalType: "address payable", name: "pumper", type: "address" }, { indexed: !1, internalType: "uint256", name: "balance", type: "uint256" }], name: "Pump", type: "event" }, { anonymous: !1, inputs: [{ indexed: !1, internalType: "address payable[]", name: "pumpers", type: "address[]" }, { indexed: !1, internalType: "uint256", name: "reward", type: "uint256" }], name: "RugPull", type: "event" }, { inputs: [], name: "PUMP_FEE", outputs: [{ internalType: "uint256", name: "", type: "uint256" }], stateMutability: "view", type: "function" }, { inputs: [], name: "RUG_PULL_BLOCKS", outputs: [{ internalType: "uint256", name: "", type: "uint256" }], stateMutability: "view", type: "function" }, { inputs: [], name: "getLatestPumpers", outputs: [{ internalType: "address payable[]", name: "", type: "address[]" }], stateMutability: "view", type: "function" }, { inputs: [], name: "owner", outputs: [{ internalType: "address", name: "", type: "address" }], stateMutability: "view", type: "function" }, { inputs: [], name: "pullTheRug", outputs: [], stateMutability: "nonpayable", type: "function" }, { inputs: [], name: "pump", outputs: [], stateMutability: "payable", type: "function" }, { inputs: [], name: "renounceOwnership", outputs: [], stateMutability: "nonpayable", type: "function" }, { inputs: [{ internalType: "address", name: "newOwner", type: "address" }], name: "transferOwnership", outputs: [], stateMutability: "nonpayable", type: "function" }]
 const contractAddress = "0xB55DD5b91Ef815cEc527e054B67f4D298111aD9F"
 const web3 = AlchemyWeb3.createAlchemyWeb3("wss://polygon-mumbai.g.alchemy.com/v2/IRBMmja7bcCQh9DBMsZwsPh7ofOXTZT2")
+const addressLinkPrefix = "https://mumbai.polygonscan.com/address/"
 
 // ========== HTML ELEMENTS ==========
 
@@ -30,6 +31,7 @@ const loadingInfo = document.getElementById("loading_info")
 const gameProgressPanel = document.getElementById("game_progress_panel")
 const rugPullPanel = document.getElementById("rug_pull_panel")
 const userRugPullInfo = document.getElementById("user_rug_pull_info")
+const userRugPullAddress = document.getElementById("user_rug_pull_address")
 const userRugPullReward = document.getElementById("user_rug_pull_reward")
 const singleRugPullInfo = document.getElementById("single_rug_pull_info")
 const singleRugPullAddress = document.getElementById("single_rug_pull_address")
@@ -188,7 +190,7 @@ const updateGameProgressPanel = function (state) {
     }
     removeHide(gameProgressPanel)
 
-    pendingWinnersView.textContent = buildPendingWinnersText(state)
+    pendingWinnersView.innerHTML = buildPendingWinnersHTML(state)
     timeLeftView.textContent = getRugPullRemainingBlocks(state)
     rewardPoolView.textContent = web3.utils.fromWei(state.balance.toString()) + " MATIC"
 }
@@ -215,6 +217,7 @@ const updateUserRugPullInfo = function (state) {
 
     removeHide(userRugPullInfo)
 
+    userRugPullAddress.innerHTML = parseAddress(rugPull.pumpers[0])
     userRugPullReward.innerText = web3.utils.fromWei(rugPull.reward.toString())
 }
 
@@ -227,7 +230,7 @@ const updateSingleRugPullInfo = function (state) {
 
     removeHide(singleRugPullInfo)
 
-    singleRugPullAddress.innerText = parseAddress(rugPull.pumpers[0])
+    singleRugPullAddress.innerHTML = parseAddress(rugPull.pumpers[0])
     singleRugPullReward.innerText = web3.utils.fromWei(rugPull.reward.toString())
 }
 
@@ -240,7 +243,7 @@ const updateMultiRugPullInfo = function (state) {
 
     removeHide(multiRugPullInfo)
 
-    multiRugPullAddresses.innerText = rugPull.pumpers.map(pumper => parseAddress(pumper)).join(" and ")
+    multiRugPullAddresses.innerHTML = rugPull.pumpers.map(pumper => parseAddress(pumper)).join(" and ")
     multiRugPullReward.innerText = web3.utils.fromWei(rugPull.reward.toString())
 }
 
@@ -263,7 +266,7 @@ const updatePumpersTable = function (state) {
 
 // ========== HTML BUILDER FUNCTIONS ==========
 
-const buildPendingWinnersText = function (state) {
+const buildPendingWinnersHTML = function (state) {
     return getPendingWinners(state).map(pumper => parseAddress(pumper.address)).join(" and ")
 }
 
@@ -274,7 +277,6 @@ const buildPumperHtml = function (pumper) {
     html += pumper.blockNumber
     html += "</td>"
 
-    // TODO Link to ethscanner
     html += "<td>"
     html += parseAddress(pumper.address)
     html += "</td>"
@@ -289,9 +291,15 @@ const buildPumperHtml = function (pumper) {
 }
 
 const parseAddress = function (address) {
-    if (address == state.walletAddress) return "you"
+    let link = addressLinkPrefix + address
+    let shortAddress
+    if (address == state.walletAddress) {
+        shortAddress = "you"
+    } else {
+        shortAddress = address.substring(0, 6) + "…" + address.substring(38)
+    }
 
-    return address.substring(0, 6) + "…" + address.substring(38)
+    return '<a href="' + link + '" target="_blank">' + shortAddress + '</a>'
 }
 
 // ========== WEB3 EVENTS ==========
