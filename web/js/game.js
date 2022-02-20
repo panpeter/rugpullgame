@@ -307,7 +307,7 @@ const handlePumpErrorEvent = function (error) {
 }
 
 const handlePumpSubscriptionErrorEvent = function (error) {
-    state.feedback = error
+    state.feedback = error.message
     updateUI(state)
 }
 
@@ -324,37 +324,12 @@ const handlePumpEventDataEvent = function (event) {
     updateUI(state)
 }
 
-const handlePumpEventChangedEvent = function (event) {
-    state.balance = event.returnValues.balance
-    state.latestPumpBlock = Math.max(event.blockNumber, state.latestPumpBlock)
-
-    state.pumpers.push({
-        blockNumber: event.blockNumber,
-        address: event.returnValues.pumper.toLowerCase(),
-        balance: event.returnValues.balance,
-    })
-
-    updateUI(state)
-}
-
 const handleRugPullSubscriptionErrorEvent = function (error) {
-    state.feedback = error
+    state.feedback = error.message
     updateUI(state)
 }
 
 const handleRugPullEventDataEvent = function (event) {
-    state.latestRugPullBlock = Math.max(event.blockNumber, state.latestRugPullBlock)
-
-    state.rugPulls.push({
-        blockNumber: event.blockNumber,
-        pumpers: event.returnValues.pumpers.map(address => address.toLowerCase()),
-        reward: event.returnValues.reward,
-    })
-
-    updateUI(state)
-}
-
-const handleRugPullEventChangedEvent = function (event) {
     state.latestRugPullBlock = Math.max(event.blockNumber, state.latestRugPullBlock)
 
     state.rugPulls.push({
@@ -381,7 +356,7 @@ const handleNewBlockEvent = function (event) {
 }
 
 const handleBlockHeaderErrorEvent = function (error) {
-    state.feedback = error
+    state.feedback = error.message
 
     updateUI(state)
 }
@@ -508,31 +483,19 @@ const setup = async function () {
 
     web3.eth.getBlockNumber().then(handleBlockFetchedEvent)
 
-    web3.eth.subscribe("newBlockHeaders", async (error, event) => {
-        if (!error) {
-            handleNewBlockEvent(event)
-        } else {
-            handleBlockHeaderErrorEvent(error.message)
-        }
-    })
+    web3.eth.subscribe("newBlockHeaders")
+        .on('data', event => handleNewBlockEvent(event))
+        .on('error', error => handleBlockHeaderErrorEvent(error))
 
-    // TODO: filter to latest 100?
-    let options = {
-        filter: {
-            value: [],
-        },
-        fromBlock: 0
-    }
+    let options = { fromBlock: 0 }
 
     window.contract.events.Pump(options)
         .on('data', event => handlePumpEventDataEvent(event))
-        .on('changed', event => handlePumpEventChangedEvent(event))
-        .on('error', err => handlePumpSubscriptionErrorEvent(err))
+        .on('error', error => handlePumpSubscriptionErrorEvent(error))
 
     window.contract.events.RugPull(options)
         .on('data', event => handleRugPullEventDataEvent(event))
-        .on('changed', event => handleRugPullEventChangedEvent(event))
-        .on('error', err => handleRugPullSubscriptionErrorEvent(err))
+        .on('error', error => handleRugPullSubscriptionErrorEvent(error))
 
     checkConnection()
 }
