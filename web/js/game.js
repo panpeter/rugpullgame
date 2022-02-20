@@ -18,6 +18,7 @@ const web3 = AlchemyWeb3.createAlchemyWeb3("wss://polygon-mumbai.g.alchemy.com/v
 // ========== HTML ELEMENTS ==========
 
 const main = document.getElementById("main")
+const loadingInfo = document.getElementById("loading_info")
 const gameProgressPanel = document.getElementById("game_progress_panel")
 const rugPullPanel = document.getElementById("rug_pull_panel")
 const userRugPullInfo = document.getElementById("user_rug_pull_info")
@@ -101,6 +102,13 @@ const canDoRugPull = function (state) {
 // ========== UPDATE UI FUNCTIONS ==========
 
 const updateUI = function (state) {
+    if (state.latestBlock == 0) {
+        return
+    }
+
+    main.style.display = ""
+    hide(loadingInfo)
+
     updateConnectLink(state)
     updatePumpLink(state)
     updateRugPullLink(state)
@@ -527,8 +535,6 @@ const setup = async function () {
         .on('error', err => handleRugPullSubscriptionErrorEvent(err))
 
     checkConnection()
-
-    main.style.display = ""
 }
 
 setup()
