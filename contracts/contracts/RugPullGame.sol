@@ -8,7 +8,7 @@ contract RugPullGame is Ownable {
     event RugPull(address payable[] pumpers, uint256 reward);
 
     uint256 public constant PUMP_FEE = 1 ether;
-    uint256 public constant RUG_PULL_BLOCKS = 10;
+    uint256 public constant RUG_PULL_BLOCKS = 15;
 
     uint256 private latestPumpBlock = 0;
     address payable[] private latestPumpers;
@@ -33,7 +33,7 @@ contract RugPullGame is Ownable {
     function pullTheRug() external {
         require(
             block.number >= latestPumpBlock + RUG_PULL_BLOCKS,
-            "At least 10 blocks must pass before a rug pull"
+            "At least 15 blocks must pass before a rug pull"
         );
 
         uint256 reward = address(this).balance / latestPumpers.length;
