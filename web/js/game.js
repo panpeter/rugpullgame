@@ -19,8 +19,8 @@ const debounce = (context, func, delay) => {
 
 // ========== CONSTANTS ==========
 
-const contractABI = [{ anonymous: !1, inputs: [{ indexed: !0, internalType: "address", name: "previousOwner", type: "address" }, { indexed: !0, internalType: "address", name: "newOwner", type: "address" }], name: "OwnershipTransferred", type: "event" }, { anonymous: !1, inputs: [{ indexed: !1, internalType: "address payable", name: "pumper", type: "address" }, { indexed: !1, internalType: "uint256", name: "balance", type: "uint256" }], name: "Pump", type: "event" }, { anonymous: !1, inputs: [{ indexed: !1, internalType: "address payable[]", name: "pumpers", type: "address[]" }, { indexed: !1, internalType: "uint256", name: "reward", type: "uint256" }], name: "RugPull", type: "event" }, { inputs: [], name: "PUMP_FEE", outputs: [{ internalType: "uint256", name: "", type: "uint256" }], stateMutability: "view", type: "function" }, { inputs: [], name: "RUG_PULL_BLOCKS", outputs: [{ internalType: "uint256", name: "", type: "uint256" }], stateMutability: "view", type: "function" }, { inputs: [], name: "getLatestPumpers", outputs: [{ internalType: "address payable[]", name: "", type: "address[]" }], stateMutability: "view", type: "function" }, { inputs: [], name: "owner", outputs: [{ internalType: "address", name: "", type: "address" }], stateMutability: "view", type: "function" }, { inputs: [], name: "pullTheRug", outputs: [], stateMutability: "nonpayable", type: "function" }, { inputs: [], name: "pump", outputs: [], stateMutability: "payable", type: "function" }, { inputs: [], name: "renounceOwnership", outputs: [], stateMutability: "nonpayable", type: "function" }, { inputs: [{ internalType: "address", name: "newOwner", type: "address" }], name: "transferOwnership", outputs: [], stateMutability: "nonpayable", type: "function" }]
-const contractAddress = "0xa209a971125521Af12b2FaFa4b7DDA8665872322"
+const contractABI = [{ "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "previousOwner", "type": "address" }, { "indexed": true, "internalType": "address", "name": "newOwner", "type": "address" }], "name": "OwnershipTransferred", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": false, "internalType": "address payable", "name": "pumper", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "balance", "type": "uint256" }], "name": "Pump", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": false, "internalType": "address payable[]", "name": "pumpers", "type": "address[]" }, { "indexed": false, "internalType": "uint256", "name": "reward", "type": "uint256" }], "name": "RugPull", "type": "event" }, { "inputs": [], "name": "PUMP_FEE", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "RUG_PULL_BLOCKS", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "getLatestPumpers", "outputs": [{ "internalType": "address payable[]", "name": "", "type": "address[]" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "owner", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "pump", "outputs": [], "stateMutability": "payable", "type": "function" }, { "inputs": [], "name": "renounceOwnership", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "rugPull", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "newOwner", "type": "address" }], "name": "transferOwnership", "outputs": [], "stateMutability": "nonpayable", "type": "function" }]
+const contractAddress = "0xD63548CB2f145DD6b16738Bc5f65135194CF564b"
 const web3 = AlchemyWeb3.createAlchemyWeb3("wss://polygon-mainnet.g.alchemy.com/v2/OoPc8KfqoohY9r8h_jEQKizXneEUm5vX")
 const addressLinkPrefix = "https://polygonscan.com/address/"
 
@@ -483,7 +483,7 @@ const checkConnection = async function () {
     }
 }
 
-const dismissFeedback = function() {
+const dismissFeedback = function () {
     state.feedback = null
     updateUI(state)
 }
@@ -496,7 +496,7 @@ const setup = async function () {
         metamaskError.style.display = "block"
         return
     }
-    
+
     hide(gameProgressPanel)
     hide(rugPullPanel)
     hide(pumpLink)
@@ -509,7 +509,7 @@ const setup = async function () {
     pumpLink.onclick = function () { pump() }
     pullTheRugLink.onclick = function () { rugPull() }
     startOverLink.onclick = function () { pump() }
-    feedbackDismissLink.onclick = function(e) { e.preventDefault(); dismissFeedback() }
+    feedbackDismissLink.onclick = function (e) { e.preventDefault(); dismissFeedback() }
 
     window.ethereum.on('accountsChanged', async () => { checkConnection() })
     window.contract = await new web3.eth.Contract(contractABI, contractAddress)
