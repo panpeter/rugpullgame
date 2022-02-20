@@ -42,7 +42,9 @@ const multiRugPullReward = document.getElementById("multi_rug_pull_reward")
 const timeLeftView = document.getElementById("time_left_view")
 const rewardPoolView = document.getElementById("reward_pool_view")
 const pendingWinnersView = document.getElementById("pending_winners_text")
-const feedbackView = document.getElementById("feedback")
+const feedbackContainer = document.getElementById("feedback_container")
+const feedbackText = document.getElementById("feedback")
+const feedbackDismissLink = document.getElementById("feedback_dismiss_link")
 const connectLink = document.getElementById("connect_link")
 const pumpLink = document.getElementById("pump_link")
 const pullTheRugLink = document.getElementById("pull_the_rug_link")
@@ -175,12 +177,14 @@ const updateStartOverLink = function (state) {
 }
 
 const updateFeedbackView = function (state) {
-    if (state.feedback != null) {
-        feedbackView.innerText = state.feedback
-        removeHide(feedbackView)
-    } else {
-        hide(feedbackView)
+    if (state.feedback == null) {
+        hide(feedbackContainer)
+        return
     }
+
+    removeHide(feedbackContainer)
+
+    feedbackText.innerText = state.feedback
 }
 
 const updateGameProgressPanel = function (state) {
@@ -478,6 +482,11 @@ const checkConnection = async function () {
     }
 }
 
+const dismissFeedback = function() {
+    state.feedback = null
+    updateUI(state)
+}
+
 // ========== SETUP ==========
 
 const setup = async function () {
@@ -486,13 +495,14 @@ const setup = async function () {
     hide(pumpLink)
     hide(pullTheRugLink)
     hide(startOverLink)
-    hide(feedbackView)
+    hide(feedbackContainer)
     removeHide(connectLink)
 
     connectLink.onclick = function () { connectWallet() }
     pumpLink.onclick = function () { pump() }
     pullTheRugLink.onclick = function () { rugPull() }
     startOverLink.onclick = function () { pump() }
+    feedbackDismissLink.onclick = function(e) { e.preventDefault(); dismissFeedback() }
 
     window.ethereum.on('accountsChanged', async () => { checkConnection() })
     window.contract = await new web3.eth.Contract(contractABI, contractAddress)

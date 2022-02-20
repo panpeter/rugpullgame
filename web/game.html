@@ -33,7 +33,6 @@
 
     .feedback {
       margin-top: 1.5rem;
-      display: block;
     }
 
     table td,
@@ -78,7 +77,10 @@
       </p>
     </div>
 
-    <code class="feedback" id="feedback">Wrong</code>
+    <div class="feedback" id="feedback_container">
+      <code id="feedback">Wrong</code><br /><a href="" id="feedback_dismiss_link">Dismiss</a>
+    </div>
+    
 
     <div class="button_container">
       <a id="connect_link"><button id="connect_button">CONNECT</button></a>
