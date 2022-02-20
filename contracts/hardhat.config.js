@@ -1,16 +1,28 @@
 /**
 * @type import('hardhat/config').HardhatUserConfig
 */
-require('dotenv').config();
-require("@nomiclabs/hardhat-ethers");
+require('dotenv').config()
+require("@nomiclabs/hardhat-ethers")
+require("@nomiclabs/hardhat-etherscan")
+
 const {
    POLYGON_MUMBAI_API_URL,
    POLYGON_MUMBAI_PRIVATE_KEY,
    POLYGON_MAINNET_API_URL,
-   POLYGON_MAINNET_PRIVATE_KEY
+   POLYGON_MAINNET_PRIVATE_KEY,
+   POLYGONSCAN_KEY
 } = process.env;
+
 module.exports = {
-   solidity: "0.8.0",
+   solidity: {
+      version: "0.8.0",
+      settings: {
+         optimizer: {
+            enabled: true,
+            runs: 999,
+         },
+      },
+   },
    defaultNetwork: "hardhat",
    networks: {
       hardhat: {},
@@ -23,10 +35,7 @@ module.exports = {
          accounts: [`0x${POLYGON_MAINNET_PRIVATE_KEY}`]
       }
    },
-   settings: {
-      optimizer: {
-         enabled: true,
-         runs: 999999,
-      },
+   etherscan: {
+      apiKey: POLYGONSCAN_KEY,
    },
 }
