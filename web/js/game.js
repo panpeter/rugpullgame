@@ -4,8 +4,8 @@ var style = document.createElement('style');
 style.innerHTML = '.hide { display: none !important; }';
 document.getElementsByTagName('head')[0].appendChild(style);
 
-const removeHide = function (elem) { if (elem.classList.contains("hide")) elem.classList.remove("hide") }
-const hide = function (elem) { if (!elem.classList.contains("hide")) elem.classList.add("hide") }
+const removeHide = function (elem) { elem.classList.remove("hide") }
+const hide = function (elem) { elem.classList.add("hide") }
 const disable = function (elem) { elem.setAttribute("disabled", "disabled") }
 const enable = function (elem) { elem.removeAttribute("disabled") }
 
@@ -21,6 +21,8 @@ const web3 = AlchemyWeb3.createAlchemyWeb3("ws://127.0.0.1:8545/")
 const main = document.getElementById("main")
 const gameProgressPanel = document.getElementById("game_progress_panel")
 const rugPullPanel = document.getElementById("rug_pull_panel")
+const userRugPullInfo = document.getElementById("user_rug_pull_info")
+const userRugPullReward = document.getElementById("user_rug_pull_reward")
 const singleRugPullInfo = document.getElementById("single_rug_pull_info")
 const singleRugPullAddress = document.getElementById("single_rug_pull_address")
 const singleRugPullReward = document.getElementById("single_rug_pull_reward")
@@ -78,6 +80,15 @@ const isRugPull = function (state) {
     return state.latestPumpBlock < state.latestRugPullBlock
 }
 
+const getPreviousRugPull = function (state) {
+    let rugPulls = state.rugPulls
+    if (rugPulls.lenght < 2) {
+        return null
+    }
+
+    return rugPulls[rugPulls.lenght - 2]
+}
+
 const getRugPullRemainingBlocks = function (state) {
     let blocksSinceLastPump = state.latestBlock - state.latestPumpBlock
     let remainingBlocks = state.rugPullBlocks - blocksSinceLastPump
@@ -110,7 +121,7 @@ const updateConnectLink = function (state) {
 }
 
 const updatePumpLink = function (state) {
-    if (state.connected && !isPendingWinner(state)) {
+    if (state.connected && !isPendingWinner(state) && !isRugPull(state)) {
         removeHide(pumpLink)
     } else {
         hide(pumpLink)
@@ -167,25 +178,63 @@ const updateRugPullPanel = function (state) {
 
     removeHide(rugPullPanel)
 
+    updateUserRugPullInfo(state)
+    updateSingleRugPullInfo(state)
+    updateMultiRugPullInfo(state)
+}
+
+const updateUserRugPullInfo = function (state) {
     let rugPull = state.rugPulls[state.rugPulls.length - 1]
-
-    if (rugPull.pumpers.length == 1) {
-        hide(multiRugPullInfo)
-        removeHide(singleRugPullInfo)
-
-        singleRugPullAddress.innerText = parseAddress(rugPull.pumpers[0])
-        singleRugPullReward.innerText = web3.utils.fromWei(rugPull.reward.toString())
-    } else {
-        hide(singleRugPullInfo)
-        removeHide(multiRugPullInfo)
-
-        multiRugPullAddresses.innerText = rugPull.pumpers.map(pumper => parseAddress(pumper)).join(" and ")
-        multiRugPullReward.innerText = web3.utils.fromWei(rugPull.reward.toString())
+    if (rugPull.pumpers.length != 1 || rugPull.pumpers[0] != state.walletAddress) {
+        hide(userRugPullInfo)
+        return
     }
+
+    removeHide(userRugPullInfo)
+
+    userRugPullReward.innerText = web3.utils.fromWei(rugPull.reward.toString())
+}
+
+const updateSingleRugPullInfo = function (state) {
+    let rugPull = state.rugPulls[state.rugPulls.length - 1]
+    if (rugPull.pumpers.length != 1 || rugPull.pumpers[0] == state.walletAddress) {
+        hide(singleRugPullInfo)
+        return
+    }
+
+    removeHide(singleRugPullInfo)
+
+    singleRugPullAddress.innerText = parseAddress(rugPull.pumpers[0])
+    singleRugPullReward.innerText = web3.utils.fromWei(rugPull.reward.toString())
+}
+
+const updateMultiRugPullInfo = function (state) {
+    let rugPull = state.rugPulls[state.rugPulls.length - 1]
+    if (rugPull.pumpers.length < 2) {
+        hide(multiRugPullInfo)
+        return
+    }
+
+    removeHide(multiRugPullInfo)
+
+    multiRugPullAddresses.innerText = rugPull.pumpers.map(pumper => parseAddress(pumper)).join(" and ")
+    multiRugPullReward.innerText = web3.utils.fromWei(rugPull.reward.toString())
 }
 
 const updatePumpersTable = function (state) {
-    let pumpers = state.pumpers.slice().reverse().filter(pumper => pumper.blockNumber >= state.latestRugPullBlock)
+    let blockNumberLimit
+    if (isRugPull(state)) {
+        let previousRugPull = getPreviousRugPull(state)
+        if (previousRugPull) {
+            blockNumberLimit = previousRugPull.blockNumber
+        } else {
+            blockNumberLimit = 0
+        }
+    } else {
+        blockNumberLimit = state.latestRugPullBlock
+    }
+
+    let pumpers = state.pumpers.slice().reverse().filter(pumper => pumper.blockNumber >= blockNumberLimit)
     pumpersTable.innerHTML = pumpers.map(pumper => buildPumperHtml(pumper)).join("")
 }
 
@@ -242,12 +291,6 @@ const handleDisconnectedEvent = function () {
     state.connected = false
     state.walletAddress = null
     state.feedback = null
-    updateUI(state)
-}
-
-const handlePumpSuccessEvent = function (txHash) {
-    // TODO fix url and update the UI
-    // state.feedback = "Pumped! Check out your transaction on Etherscan: https://ropsten.etherscan.io/tx/" + txHash
     updateUI(state)
 }
 
@@ -348,11 +391,6 @@ const onPumpFeeFetchedEvent = function (fee) {
     updateUI(state)
 }
 
-const handleRugPullEvent = function (txHash) {
-    state.feedback = "Rug Pull! Check out your transaction on Etherscan: https://ropsten.etherscan.io/tx/" + txHash
-    updateUI(state)
-}
-
 const handleRugPullErrorEvent = function (error) {
     state.feedback = error
 
@@ -387,11 +425,11 @@ const pump = async function () {
     }
 
     try {
-        const txHash = await window.ethereum.request({
+        await window.ethereum.request({
             method: 'eth_sendTransaction',
             params: [transactionParameters],
         });
-        handlePumpSuccessEvent(txHash)
+        // UI is updated when the event arrives.
     } catch (error) {
         handlePumpErrorEvent(error.message)
     }
@@ -407,11 +445,11 @@ const rugPull = async function () {
     }
 
     try {
-        const txHash = await window.ethereum.request({
+        await window.ethereum.request({
             method: 'eth_sendTransaction',
             params: [transactionParameters],
         });
-        handleRugPullEvent(txHash)
+        // UI is updated when the event arrives.
     } catch (error) {
         handleRugPullErrorEvent(error.message)
     }
