@@ -66,17 +66,17 @@ describe("RugPullGame contract", function () {
         await ethers.provider.send("evm_mine")
 
         await expect(
-            contract.connect(account1).pullTheRug()
+            contract.connect(account1).rugPull()
         ).to.be.revertedWith("At least 15 blocks must pass before a rug pull")
     })
 
-    it("allows to pull the rug", async function () {
+    it("allows to rug pull", async function () {
         await contract.connect(account1).pump({ value: ONE_ETH })
         for (let i = 0; i < 14; i++) {
             await ethers.provider.send("evm_mine")
         }
         let account1Balance = await ethers.provider.getBalance(account1.address)
-        await contract.connect(account2).pullTheRug()
+        await contract.connect(account2).rugPull()
 
         expect(await ethers.provider.getBalance(account1.address)).to.equal(account1Balance.add(ONE_ETH))
     })
@@ -90,7 +90,7 @@ describe("RugPullGame contract", function () {
         }
 
         let account1Balance = await ethers.provider.getBalance(account1.address)
-        await contract.connect(owner).pullTheRug()
+        await contract.connect(owner).rugPull()
 
         expect(await ethers.provider.getBalance(account1.address)).to.equal(account1Balance.add(ONE_ETH.mul(3)))
     })
@@ -107,7 +107,7 @@ describe("RugPullGame contract", function () {
 
         let account1Balance = await ethers.provider.getBalance(account1.address)
         let account2Balance = await ethers.provider.getBalance(account2.address)
-        await contract.connect(owner).pullTheRug()
+        await contract.connect(owner).rugPull()
 
         let reward = ONE_ETH.mul(3).div(2)
         expect(await ethers.provider.getBalance(account1.address)).to.equal(account1Balance.add(reward))
@@ -142,7 +142,7 @@ describe("RugPullGame contract", function () {
             await ethers.provider.send("evm_mine")
         }
         
-        let tx = await contract.connect(account2).pullTheRug()
+        let tx = await contract.connect(account2).rugPull()
         let rc = await tx.wait()
         let event = rc.events.find(event => event.event === 'RugPull')
         let [pumpers, reward] = event.args

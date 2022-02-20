@@ -30,7 +30,7 @@ contract RugPullGame is Ownable {
         return latestPumpers;
     }
 
-    function pullTheRug() external {
+    function rugPull() external {
         require(
             block.number >= latestPumpBlock + RUG_PULL_BLOCKS,
             "At least 15 blocks must pass before a rug pull"
