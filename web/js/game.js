@@ -12,9 +12,8 @@ const enable = function (elem) { elem.removeAttribute("disabled") }
 // ========== CONSTANTS ==========
 
 const contractABI = [{ anonymous: !1, inputs: [{ indexed: !0, internalType: "address", name: "previousOwner", type: "address" }, { indexed: !0, internalType: "address", name: "newOwner", type: "address" }], name: "OwnershipTransferred", type: "event" }, { anonymous: !1, inputs: [{ indexed: !1, internalType: "address payable", name: "pumper", type: "address" }, { indexed: !1, internalType: "uint256", name: "balance", type: "uint256" }], name: "Pump", type: "event" }, { anonymous: !1, inputs: [{ indexed: !1, internalType: "address payable[]", name: "pumpers", type: "address[]" }, { indexed: !1, internalType: "uint256", name: "reward", type: "uint256" }], name: "RugPull", type: "event" }, { inputs: [], name: "PUMP_FEE", outputs: [{ internalType: "uint256", name: "", type: "uint256" }], stateMutability: "view", type: "function" }, { inputs: [], name: "RUG_PULL_BLOCKS", outputs: [{ internalType: "uint256", name: "", type: "uint256" }], stateMutability: "view", type: "function" }, { inputs: [], name: "getLatestPumpers", outputs: [{ internalType: "address payable[]", name: "", type: "address[]" }], stateMutability: "view", type: "function" }, { inputs: [], name: "owner", outputs: [{ internalType: "address", name: "", type: "address" }], stateMutability: "view", type: "function" }, { inputs: [], name: "pullTheRug", outputs: [], stateMutability: "nonpayable", type: "function" }, { inputs: [], name: "pump", outputs: [], stateMutability: "payable", type: "function" }, { inputs: [], name: "renounceOwnership", outputs: [], stateMutability: "nonpayable", type: "function" }, { inputs: [{ internalType: "address", name: "newOwner", type: "address" }], name: "transferOwnership", outputs: [], stateMutability: "nonpayable", type: "function" }]
-const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
-// const web3 = AlchemyWeb3.createAlchemyWeb3("https://eth-ropsten.alchemyapi.io/v2/W6UzXHDjzAdfELyjMpS9t_YfTJXxbkF6")
-const web3 = AlchemyWeb3.createAlchemyWeb3("ws://127.0.0.1:8545/")
+const contractAddress = "0xB55DD5b91Ef815cEc527e054B67f4D298111aD9F"
+const web3 = AlchemyWeb3.createAlchemyWeb3("wss://polygon-mumbai.g.alchemy.com/v2/IRBMmja7bcCQh9DBMsZwsPh7ofOXTZT2")
 
 // ========== HTML ELEMENTS ==========
 
@@ -366,7 +365,7 @@ const handleBlockFetchedEvent = function (block) {
 }
 
 const handleNewBlockEvent = function (event) {
-    if (event.transactions.lenght == 0) return
+    if (event.gasUsed == 0) return
 
     state.latestBlock = event.number
 
