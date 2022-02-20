@@ -15,7 +15,7 @@ contract RugPullGame is Ownable {
     address payable[] private latestPumpers;
 
     function pump() external payable {
-        require(msg.value >= PUMP_FEE, "Pump fee must be at least 1 ether");
+        require(msg.value >= PUMP_FEE, "Pump fee must be at least 1 MATIC");
 
         if (latestPumpBlock != block.number) {
             delete latestPumpers;

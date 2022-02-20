@@ -31,7 +31,7 @@ describe("RugPullGame contract", function () {
     it("reverts when pumper does not pay fee", async function () {
         await expect(
             contract.connect(account1).pump()
-        ).to.be.revertedWith("Pump fee must be at least 1 ether")
+        ).to.be.revertedWith("Pump fee must be at least 1 MATIC")
     })
 
     it("increases the balance when it's pumped", async function () {
