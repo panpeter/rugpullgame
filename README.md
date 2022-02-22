@@ -14,6 +14,10 @@ If someone else pumps, they need to wait 30 blocks, and if nobody else pumps the
 
 In case two players pump in the same block and call the rug pull, the reward is split between them.
 
+## Bots
+
+To initiate the game there is a [play.js](https://github.com/panpeter/rugpullgame/blob/main/contracts/scripts/play.js) script that runs a simple bot. It uses three accounts to pump and do rug pulls. It's very easy to beat the script but I won't say how :) The code is public so anyone with basic programming knowledge can guess its actions and win.
+
 ## Tools used in this project
 - [Hardhat](https://hardhat.org/) - ethereum development environment
 - [Waffle](https://getwaffle.io/) - smart contracts testing
