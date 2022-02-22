@@ -14,9 +14,24 @@ If someone else pumps, they need to wait 30 blocks, and if nobody else pumps the
 
 In case two players pump in the same block and call the rug pull, the reward is split between them.
 
-## Bots
+## Playing script
 
-To initiate the game there is a [play.js](https://github.com/panpeter/rugpullgame/blob/main/contracts/scripts/play.js) script that runs a simple bot. It uses three accounts to pump and do rug pulls. It's very easy to beat the script but I won't say how :) The code is public so anyone with basic programming knowledge can guess its actions and win.
+To initiate the game there is a [play.js](https://github.com/panpeter/rugpullgame/blob/main/contracts/scripts/play.js) script that runs a simple playing script. It uses three accounts to pump and do rug pulls. It's very easy to beat but I won't say how 😊 The code is public so anyone with basic programming knowledge can guess its actions and win.
+
+## Useful commands
+```
+// Test the contract
+npx hardhat test
+
+// Deploy the contract to the mainnet 
+npx hardhat run scripts/deploy.js --network polygon_mainnet
+
+// Verify the contract on Polygonscan
+npx hardhat verify --network polygon_mainnet [contract_address]
+
+// Run playing script
+npx hardhat run scripts/play.js --network polygon_mainnet
+```
 
 ## Tools used in this project
 - [Hardhat](https://hardhat.org/) - ethereum development environment
