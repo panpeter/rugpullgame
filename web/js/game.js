@@ -48,8 +48,8 @@ const feedbackText = document.getElementById("feedback")
 const feedbackDismissLink = document.getElementById("feedback_dismiss_link")
 const connectLink = document.getElementById("connect_link")
 const pumpLink = document.getElementById("pump_link")
-const pullTheRugLink = document.getElementById("pull_the_rug_link")
-const pullTheRugButton = document.getElementById("pull_the_rug_button")
+const rugPullLink = document.getElementById("rug_pull_link")
+const rugPullButton = document.getElementById("rug_pull_button")
 const startOverLink = document.getElementById("start_over_link")
 const pumpersTable = document.getElementById("pumpers")
 
@@ -158,14 +158,14 @@ const updatePumpLink = function (state) {
 
 const updateRugPullLink = function (state) {
     if (state.connected && isPendingWinner(state) && !isRugPull(state)) {
-        removeHide(pullTheRugLink)
+        removeHide(rugPullLink)
         if (canDoRugPull(state)) {
-            enable(pullTheRugButton)
+            enable(rugPullButton)
         } else {
-            disable(pullTheRugButton)
+            disable(rugPullButton)
         }
     } else {
-        hide(pullTheRugLink)
+        hide(rugPullLink)
     }
 }
 
@@ -452,7 +452,7 @@ const rugPull = async function () {
     const transactionParameters = {
         to: contractAddress,
         from: userAddress,
-        data: window.contract.methods.pullTheRug().encodeABI()
+        data: window.contract.methods.rugPull().encodeABI()
     }
 
     try {
@@ -500,14 +500,14 @@ const setup = async function () {
     hide(gameProgressPanel)
     hide(rugPullPanel)
     hide(pumpLink)
-    hide(pullTheRugLink)
+    hide(rugPullLink)
     hide(startOverLink)
     hide(feedbackContainer)
     removeHide(connectLink)
 
     connectLink.onclick = function () { connectWallet() }
     pumpLink.onclick = function () { pump() }
-    pullTheRugLink.onclick = function () { rugPull() }
+    rugPullLink.onclick = function () { rugPull() }
     startOverLink.onclick = function () { pump() }
     feedbackDismissLink.onclick = function (e) { e.preventDefault(); dismissFeedback() }
 
