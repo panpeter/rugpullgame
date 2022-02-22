@@ -72,7 +72,7 @@ describe("RugPullGame contract", function () {
 
     it("allows to rug pull", async function () {
         await contract.connect(account1).pump({ value: ONE_ETH })
-        for (let i = 0; i < 14; i++) {
+        for (let i = 0; i < 29; i++) {
             await ethers.provider.send("evm_mine")
         }
         let account1Balance = await ethers.provider.getBalance(account1.address)
@@ -85,7 +85,7 @@ describe("RugPullGame contract", function () {
         await contract.connect(account1).pump({ value: ONE_ETH })
         await contract.connect(account2).pump({ value: ONE_ETH })
         await contract.connect(account1).pump({ value: ONE_ETH })
-        for (let i = 0; i < 14; i++) {
+        for (let i = 0; i < 30; i++) {
             await ethers.provider.send("evm_mine")
         }
 
@@ -101,7 +101,7 @@ describe("RugPullGame contract", function () {
         await contract.connect(account2).pump({ value: ONE_ETH })
         await contract.connect(account1).pump({ value: ONE_ETH })
         await ethers.provider.send("evm_setAutomine", [true])
-        for (let i = 0; i < 15; i++) {
+        for (let i = 0; i < 30; i++) {
             await ethers.provider.send("evm_mine")
         }
 
@@ -138,7 +138,7 @@ describe("RugPullGame contract", function () {
     it("emits RugPull event", async function () {
         await contract.connect(account1).pump({ value: ONE_ETH })
         await contract.connect(account2).pump({ value: ONE_ETH })
-        for (let i = 0; i < 15; i++) {
+        for (let i = 0; i < 30; i++) {
             await ethers.provider.send("evm_mine")
         }
         

@@ -8,7 +8,7 @@ contract RugPullGame is Ownable {
     event RugPull(address payable[] pumpers, uint256 reward);
 
     uint256 public constant PUMP_FEE = 1 ether;
-    uint256 public constant RUG_PULL_BLOCKS = 15;
+    uint256 public constant RUG_PULL_BLOCKS = 30;
 
     uint256 private latestPumpBlock = 0;
     address payable[] private latestPumpers;
