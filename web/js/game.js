@@ -528,7 +528,9 @@ const setup = async function () {
         .on('data', event => handleNewBlockEvent(event))
         .on('error', error => handleBlockHeaderErrorEvent(error))
 
-    let options = { fromBlock: 0 }
+    let currentBlock = await web3.eth.getBlockNumber()
+
+    let options = { fromBlock: currentBlock - 2000 }
 
     window.contract.events.Pump(options)
         .on('data', event => handlePumpEventDataEvent(event))
