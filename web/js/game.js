@@ -368,12 +368,6 @@ const handleRugPullEventDataEvent = function (event) {
     updateUI(state)
 }
 
-const handleBlockFetchedEvent = function (block) {
-    state.latestBlock = block
-
-    updateUI(state)
-}
-
 const handleNewBlockEvent = function (event) {
     if (event.gasUsed == 0) return
 
@@ -520,15 +514,17 @@ const setup = async function () {
         onPumpFeeFetchedEvent(fee)
     })
 
-    web3.eth.getBlockNumber().then(handleBlockFetchedEvent)
+    let currentBlock = await web3.eth.getBlockNumber()
+    state.latestBlock = currentBlock
+    
+    let currentBalance = await web3.eth.getBalance(contractAddress)
+    state.balance = currentBalance
 
     web3.eth.subscribe("newBlockHeaders")
         .on('data', event => handleNewBlockEvent(event))
         .on('error', error => handleBlockHeaderErrorEvent(error))
 
-    let currentBlock = await web3.eth.getBlockNumber()
-
-    let options = { fromBlock: currentBlock - 2000 }
+    let options = { fromBlock: currentBlock - 2_000 }
 
     window.contract.events.Pump(options)
         .on('data', event => handlePumpEventDataEvent(event))
