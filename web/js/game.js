@@ -118,8 +118,6 @@ const updateUI = function (state) {
     if (state.latestBlock == 0) return
     if (state.rugPullBlocks == 0) return
     if (state.pumpFee == 0) return
-    if (state.pumpers.length == 0) return
-    if (state.rugPulls.length == 0) return
 
     debouncedUpdateUINow(state)
 }
@@ -170,7 +168,7 @@ const updateRugPullLink = function (state) {
 }
 
 const updateStartOverLink = function (state) {
-    if (isRugPull(state)) {
+    if (state.connected && isRugPull(state)) {
         removeHide(startOverLink)
     } else {
         hide(startOverLink)
