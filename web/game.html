@@ -54,11 +54,13 @@
   </h3>
   <main id="main" style="display: none;">
     <div class="panel" id="game_progress_panel">
-      <p class="info">If nobody pumps <code id="pending_winners_text"></code> can do a rug pull</p>
+      <p class="info" id="pending_winners_text">
+        If nobody pumps <code id="pending_winners_address"></code> can do a rug pull
+      </p>
       <div class="game-state">
-        <div>
+        <div id="time_left_container">
           <p class="header">REMAINING BLOCKS</p>
-          <h2 class="state" id="time_left_view">0</h3>
+          <h2 class="state" id="time_left_text">0</h3>
         </div>
         <div>
           <p class="header">REWARD POOL</p>

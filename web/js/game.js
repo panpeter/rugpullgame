@@ -40,9 +40,11 @@ const singleRugPullReward = document.getElementById("single_rug_pull_reward")
 const multiRugPullInfo = document.getElementById("multi_rug_pull_info")
 const multiRugPullAddresses = document.getElementById("multi_rug_pull_addresses")
 const multiRugPullReward = document.getElementById("multi_rug_pull_reward")
-const timeLeftView = document.getElementById("time_left_view")
+const timeLeftTextView = document.getElementById("time_left_text")
+const timeLeftContainer = document.getElementById("time_left_container")
 const rewardPoolView = document.getElementById("reward_pool_view")
-const pendingWinnersView = document.getElementById("pending_winners_text")
+const pendingWinnersTextView = document.getElementById("pending_winners_text")
+const pendingWinnersAddressView = document.getElementById("pending_winners_address")
 const feedbackContainer = document.getElementById("feedback_container")
 const feedbackText = document.getElementById("feedback")
 const feedbackDismissLink = document.getElementById("feedback_dismiss_link")
@@ -193,8 +195,17 @@ const updateGameProgressPanel = function (state) {
     }
     removeHide(gameProgressPanel)
 
-    pendingWinnersView.innerHTML = buildPendingWinnersHTML(state)
-    timeLeftView.textContent = getRugPullRemainingBlocks(state)
+    if (state.pumpers.length > 0) {
+        removeHide(pendingWinnersTextView)
+        removeHide(timeLeftContainer)
+
+        pendingWinnersAddressView.innerHTML = buildPendingWinnersHTML(state)
+        timeLeftTextView.textContent = getRugPullRemainingBlocks(state)
+    } else {
+        hide(pendingWinnersTextView)
+        hide(timeLeftContainer)
+    }
+
     rewardPoolView.textContent = web3.utils.fromWei(state.balance.toString()) + " MATIC"
 }
 
