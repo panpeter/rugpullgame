@@ -10,7 +10,13 @@ const {
    POLYGON_MUMBAI_PRIVATE_KEY,
    POLYGON_MAINNET_API_URL,
    POLYGON_MAINNET_PRIVATE_KEY,
-   POLYGONSCAN_KEY
+   POLYGONSCAN_KEY,
+
+   BNB_TESTNET_API_URL,
+   BNB_TESTNET_PRIVATE_KEY,
+   BNB_MAINNET_API_URL,
+   BNB_MAINNET_PRIVATE_KEY,
+   BNBSCAN_MAINNET_KEY,
 } = process.env;
 
 module.exports = {
@@ -33,9 +39,17 @@ module.exports = {
       polygon_mainnet: {
          url: POLYGON_MAINNET_API_URL,
          accounts: [`0x${POLYGON_MAINNET_PRIVATE_KEY}`]
+      },
+      bnb_testnet: {
+         url: BNB_TESTNET_API_URL,
+         accounts: [`0x${BNB_TESTNET_PRIVATE_KEY}`]
+      },
+      bnb_mainnet: {
+         url: BNB_MAINNET_API_URL,
+         accounts: [`0x${BNB_MAINNET_PRIVATE_KEY}`]
       }
    },
    etherscan: {
-      apiKey: POLYGONSCAN_KEY,
+      apiKey: BNBSCAN_MAINNET_KEY,
    },
 }
