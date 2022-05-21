@@ -156,7 +156,7 @@ export const handleRugPullEvent = (
 export const handleNewBlockEvent = (
     blockHeader: BlockHeader
 ): AppThunk => async (dispatch) => {
-    if (blockHeader.gasLimit == 0) return
+    if (blockHeader.gasLimit === 0) return
 
     dispatch(newBlockReceived(blockHeader.number))
 }
@@ -244,12 +244,12 @@ export const gameSlice = createSlice({
         },
         newBlockReceived: (state, action: PayloadAction<number>) => {
             state.currentBlock = action.payload
-            if (state.condition == GameCondition.NotStarted && state.currentBlock >= state.startBlock) {
+            if (state.condition === GameCondition.NotStarted && state.currentBlock >= state.startBlock) {
                 state.condition = GameCondition.Initiated
                 return
             }
 
-            if (state.condition == GameCondition.Pumping) {
+            if (state.condition === GameCondition.Pumping) {
                 const lastPump = state.pumps.at(-1)
                 if (lastPump) {
                     state.rugPullBlocksLeft = countRugPullBlocksLeft(

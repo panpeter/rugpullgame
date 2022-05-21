@@ -28,7 +28,7 @@ export const contracts = new Map(
 export const truncateAddress = (address: string) => address.substring(0, 6) + "…" + address.substring(38);
 export const isSameAddress = (address1: string | undefined, address2: string | undefined) => {
     if (!address1 || !address2) return false
-    return address1.toLowerCase() == address2.toLowerCase()
+    return address1.toLowerCase() === address2.toLowerCase()
 }
 export const formatEthAmount = (
     amount: string

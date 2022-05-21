@@ -1,4 +1,4 @@
-import {configureStore, ThunkAction, Action, AnyAction} from '@reduxjs/toolkit';
+import {AnyAction, configureStore, ThunkAction} from '@reduxjs/toolkit';
 import gameReducer from '../features/game/gameSlice';
 import walletReducer from '../features/wallet/walletSlice';
 

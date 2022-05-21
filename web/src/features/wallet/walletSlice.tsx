@@ -1,5 +1,5 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit'
-import {AppDispatch, AppThunk} from "../../app/store";
+import {AppThunk} from "../../app/store";
 import {chainId, web3} from "../../app/web3";
 
 export enum ConnectionState {
@@ -38,7 +38,7 @@ export const connectWallet = (): AppThunk => async (dispatch) => {
 
 export const checkWallet = (): AppThunk => async (dispatch) => {
     const currentChainId = await web3.eth.net.getId()
-    if (currentChainId == chainId) {
+    if (currentChainId === chainId) {
         const accounts = await window.ethereum.request({
             method: "eth_accounts",
         })

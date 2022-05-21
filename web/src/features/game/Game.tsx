@@ -1,9 +1,11 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
+
 import React, {useEffect} from 'react';
 import {useAppDispatch, useAppSelector} from "../../app/hooks";
 import styles from "./Game.module.css";
-import {dismissFeedback, GameAction, GameCondition, load, pump, rugPull, unload} from "./gameSlice";
+import {dismissFeedback, GameAction, GameCondition, load, pump, rugPull} from "./gameSlice";
 import {checkWallet, ConnectionState, connectWallet} from "../wallet/walletSlice";
-import {contracts, formatEthAmount, isSameAddress, truncateAddress, web3} from "../../app/web3";
+import {formatEthAmount, isSameAddress, truncateAddress} from "../../app/web3";
 import Countdown from "react-countdown";
 
 interface GameProps {
@@ -24,21 +26,22 @@ export function Game(props: GameProps) {
         }
     }, [connectionState, dispatch])
 
+    const propsContractAddress = props.contractAddress
     useEffect(() => {
-        if (gameCondition === GameCondition.NotLoaded || !isSameAddress(props.contractAddress, contractAddress)) {
-            dispatch(load(props.contractAddress))
+        if (gameCondition === GameCondition.NotLoaded || !isSameAddress(propsContractAddress, contractAddress)) {
+            dispatch(load(propsContractAddress))
         }
-    }, [gameCondition, contractAddress, dispatch])
+    }, [gameCondition, contractAddress, propsContractAddress, dispatch])
 
     if (isMetamaskMissing) {
         return <MetamaskMissing/>
-    } else if (gameCondition == GameCondition.NotStarted) {
+    } else if (gameCondition === GameCondition.NotStarted) {
         return <CountdownPanel/>
-    } else if (gameCondition == GameCondition.Initiated) {
+    } else if (gameCondition === GameCondition.Initiated) {
         return <GameStarted/>
-    } else if (gameCondition == GameCondition.Pumping) {
+    } else if (gameCondition === GameCondition.Pumping) {
         return <GamePumping/>
-    } else if (gameCondition == GameCondition.RugPull) {
+    } else if (gameCondition === GameCondition.RugPull) {
         return <GameRugPull/>
     }
 
@@ -105,7 +108,7 @@ function GamePumping() {
     const isWalletConnected = useAppSelector(state => state.wallet.connectionState === ConnectionState.Connected)
     const isUserLatestPumper = useAppSelector(state => isSameAddress(state.wallet.address, state.game.pendingWinner))
     const canUserRugPull = useAppSelector(state =>
-        state.game.rugPullBlocksLeft == 0 && isSameAddress(state.wallet.address, state.game.pendingWinner)
+        state.game.rugPullBlocksLeft === 0 && isSameAddress(state.wallet.address, state.game.pendingWinner)
     )
     const userAddress = useAppSelector(state => state.wallet.address)
     const rewardPool = useAppSelector(state => state.game.rewardPool)
@@ -266,7 +269,7 @@ function Address(props: AddressProps) {
     const link = "https://bscscan.com/address/" + props.address
     let shortAddress = isSameAddress(props.address, props.userAddress) ? "you" : truncateAddress(props.address)
 
-    return <a href={link} target="_blank">{shortAddress}</a>
+    return <a href={link} rel="noreferrer" target="_blank">{shortAddress}</a>
 }
 
 function ConnectButton() {
@@ -285,11 +288,11 @@ function PumpButton() {
     </a>
 }
 
-interface RugPullButton {
+interface RugPullButtonProps {
     enabled: boolean
 }
 
-function RugPullButton(props: RugPullButton) {
+function RugPullButton(props: RugPullButtonProps) {
     const dispatch = useAppDispatch()
 
     return <a onClick={() => dispatch(rugPull())}>
@@ -304,5 +307,5 @@ interface BlockLinkProps {
 function BlockLink(props: BlockLinkProps) {
     const currentBlockLink = `https://bscscan.com/block/${props.block}`
 
-    return <a target="_blank" href={currentBlockLink}>{props.block.toString()}</a>
+    return <a target="_blank" rel="noreferrer" href={currentBlockLink}>{props.block.toString()}</a>
 }
