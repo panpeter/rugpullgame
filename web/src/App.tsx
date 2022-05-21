@@ -10,8 +10,8 @@ function App() {
             <main>
                 <Routes>
                     <Route
-                        path="/0xB55DD5b91Ef815cEc527e054B67f4D298111aD9F"
-                        element={<Game contractAddress={"0xB55DD5b91Ef815cEc527e054B67f4D298111aD9F"}/>}
+                        path="/0x1173e34634f1F42253D8248C3d90CAc40466cf29"
+                        element={<Game contractAddress={"0x1173e34634f1F42253D8248C3d90CAc40466cf29"}/>}
                     />
                     <Route index element={<Main/>}/>
                 </Routes>
