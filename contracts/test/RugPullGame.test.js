@@ -1,18 +1,29 @@
 const chai = require("chai")
-const { solidity } = require("ethereum-waffle")
+const {solidity} = require("ethereum-waffle")
+const {BigNumber} = require("ethers");
 chai.use(solidity)
-const { expect } = chai
+const {expect} = chai
 
 describe("RugPullGame contract", function () {
     let contract
     let owner
     let account1
     let account2
+    let pumpFee
+    let rugPullBlocks
+    let devCommissionDiv
 
-    const ONE_ETH = ethers.utils.parseEther("1")
-
-    const contractBalance = function () {
+    const contractBalance = () => {
         return ethers.provider.getBalance(contract.address)
+    }
+
+    const startGame = async () => {
+        const blockNumber = await ethers.provider.getBlockNumber()
+        const startBlock = await contract.START_BLOCK()
+        const blockLeft = startBlock - blockNumber
+        for (let i = 0; i < blockLeft; i++) {
+            await ethers.provider.send("evm_mine")
+        }
     }
 
     beforeEach(async function () {
@@ -22,132 +33,122 @@ describe("RugPullGame contract", function () {
         owner = signers[0]
         account1 = signers[1]
         account2 = signers[2]
+        pumpFee = await contract.PUMP_FEE()
+        rugPullBlocks = await contract.RUG_PULL_BLOCKS()
+        devCommissionDiv = await contract.DEV_COMMISSION_DIV()
     })
 
-    it("should have inital balance equal 0", async function () {
-        expect(await contractBalance()).to.equal(0)
+    it("reverts when game has not started yet", async function () {
+        expect(contract.pump()).to.be.revertedWith("Game has not started yet")
     })
 
     it("reverts when pumper does not pay fee", async function () {
-        await expect(
-            contract.connect(account1).pump()
-        ).to.be.revertedWith("Pump fee must be at least 1 MATIC")
+        await startGame()
+        expect(contract.pump()).to.be.revertedWith("Not enough ether send")
     })
 
     it("increases the balance when it's pumped", async function () {
-        await contract.connect(account1).pump({ value: ONE_ETH })
-        expect(await contractBalance()).to.equal(ONE_ETH)
-    })
-
-    it("adds pumper to latest pumpers", async function () {
-        await contract.connect(account1).pump({ value: ONE_ETH })
-        expect(await contract.getLatestPumpers()).to.eql([account1.address]);
-    })
-
-    it("can have multiple latest pumpers", async function () {
-        await ethers.provider.send("evm_setAutomine", [false])
-        await contract.connect(account1).pump({ value: ONE_ETH })
-        await ethers.provider.send("evm_setAutomine", [true])
-        await contract.connect(account2).pump({ value: ONE_ETH })
-
-        expect(await contract.getLatestPumpers()).to.eql([account1.address, account2.address])
-    })
-
-    it("holds only latest pumpers", async function () {
-        await contract.connect(account1).pump({ value: ONE_ETH })
-        await contract.connect(account2).pump({ value: ONE_ETH })
-
-        expect(await contract.getLatestPumpers()).to.eql([account2.address])
+        startGame()
+        await contract.pump({value: pumpFee})
+        expect(await contractBalance()).to.equal(pumpFee)
     })
 
     it("reverts rug pull when not enough blocks passed", async function () {
-        await contract.connect(account1).pump({ value: ONE_ETH })
-        await ethers.provider.send("evm_mine")
-        await ethers.provider.send("evm_mine")
+        startGame()
+        await contract.pump({value: pumpFee})
+        for (let i = 0; i < rugPullBlocks - 2; i++) {
+            await ethers.provider.send("evm_mine")
+        }
 
-        await expect(
-            contract.connect(account1).rugPull()
-        ).to.be.revertedWith("At least 15 blocks must pass before a rug pull")
+        expect(contract.rugPull()).to.be.revertedWith("Cannot do a rug pull just yet")
     })
 
     it("allows to rug pull", async function () {
-        await contract.connect(account1).pump({ value: ONE_ETH })
-        for (let i = 0; i < 29; i++) {
+        startGame()
+        await contract.connect(account1).pump({value: pumpFee})
+        for (let i = 0; i < rugPullBlocks; i++) {
             await ethers.provider.send("evm_mine")
         }
-        let account1Balance = await ethers.provider.getBalance(account1.address)
-        await contract.connect(account2).rugPull()
 
-        expect(await ethers.provider.getBalance(account1.address)).to.equal(account1Balance.add(ONE_ETH))
+        const devCommission = pumpFee / devCommissionDiv
+        await expect(await contract.rugPull()).to.changeEtherBalance(account1, pumpFee - devCommission)
+    })
+
+    it("sends commission to dev", async function () {
+        startGame()
+        await contract.connect(account1).pump({value: pumpFee})
+        for (let i = 0; i < rugPullBlocks; i++) {
+            await ethers.provider.send("evm_mine")
+        }
+        const devCommission = pumpFee / devCommissionDiv
+
+        await expect(await contract.connect(account1).rugPull()).to.changeEtherBalance(owner, devCommission)
     })
 
     it("transfers whole balance when a pumper pulls the rug", async function () {
-        await contract.connect(account1).pump({ value: ONE_ETH })
-        await contract.connect(account2).pump({ value: ONE_ETH })
-        await contract.connect(account1).pump({ value: ONE_ETH })
-        for (let i = 0; i < 30; i++) {
+        await contract.connect(account1).pump({value: pumpFee})
+        await contract.connect(account2).pump({value: pumpFee})
+        await contract.connect(account1).pump({value: pumpFee})
+        for (let i = 0; i < rugPullBlocks; i++) {
             await ethers.provider.send("evm_mine")
         }
+        const devCommission = BigNumber.from(pumpFee).mul(3).div(devCommissionDiv)
+        const reward = BigNumber.from(pumpFee).mul(3).sub(devCommission)
 
-        let account1Balance = await ethers.provider.getBalance(account1.address)
-        await contract.connect(owner).rugPull()
-
-        expect(await ethers.provider.getBalance(account1.address)).to.equal(account1Balance.add(ONE_ETH.mul(3)))
+        await expect(await contract.rugPull()).to.changeEtherBalance(account1, reward)
     })
 
-    it("splits the reward", async function () {
-        await contract.connect(account1).pump({ value: ONE_ETH })
-        await ethers.provider.send("evm_setAutomine", [false])
-        await contract.connect(account2).pump({ value: ONE_ETH })
-        await contract.connect(account1).pump({ value: ONE_ETH })
-        await ethers.provider.send("evm_setAutomine", [true])
-        for (let i = 0; i < 30; i++) {
+    it("emits pump event", async function () {
+        startGame()
+        await expect(await contract.pump({value: pumpFee}))
+            .to.emit(contract, 'PumpEvent')
+            .withArgs(owner.address, pumpFee);
+    })
+
+    it("emits pump event with correct balance", async function () {
+        startGame()
+        await contract.pump({value: pumpFee})
+        await expect(await contract.pump({value: pumpFee}))
+            .to.emit(contract, 'PumpEvent')
+            .withArgs(owner.address, BigNumber.from(pumpFee).mul(2));
+    })
+
+    it("emits rug pull event", async function () {
+        startGame()
+        await contract.pump({value: pumpFee})
+        for (let i = 0; i < rugPullBlocks; i++) {
             await ethers.provider.send("evm_mine")
         }
-
-        let account1Balance = await ethers.provider.getBalance(account1.address)
-        let account2Balance = await ethers.provider.getBalance(account2.address)
-        await contract.connect(owner).rugPull()
-
-        let reward = ONE_ETH.mul(3).div(2)
-        expect(await ethers.provider.getBalance(account1.address)).to.equal(account1Balance.add(reward))
-        expect(await ethers.provider.getBalance(account2.address)).to.equal(account2Balance.add(reward))
+        await expect(await contract.rugPull())
+            .to.emit(contract, 'RugPullEvent')
+            .withArgs(owner.address, BigNumber.from(pumpFee));
     })
 
-    it("emits Pump event", async function () {
-        let tx = await contract.connect(account1).pump({ value: ONE_ETH })
-        let rc = await tx.wait()
-        let event = rc.events.find(event => event.event === 'Pump')
-        let [pumper, balance] = event.args
-        
-        expect(pumper).to.be.eql(account1.address)
-        expect(balance).to.be.equal(ONE_ETH)
-    })
-
-    it("emits Pump event with correct balance", async function () {
-        await contract.connect(account1).pump({ value: ONE_ETH })
-        let tx = await contract.connect(account2).pump({ value: ONE_ETH })
-        let rc = await tx.wait()
-        let event = rc.events.find(event => event.event === 'Pump')
-        let [pumper, balance] = event.args
-        
-        expect(pumper).to.be.eql(account2.address)
-        expect(balance).to.be.equal(ONE_ETH.mul(2))
-    })
-
-    it("emits RugPull event", async function () {
-        await contract.connect(account1).pump({ value: ONE_ETH })
-        await contract.connect(account2).pump({ value: ONE_ETH })
-        for (let i = 0; i < 30; i++) {
+    it("keeps actions history", async function () {
+        startGame()
+        await contract.pump({value: pumpFee})
+        await contract.connect(account1).pump({value: pumpFee})
+        for (let i = 0; i < rugPullBlocks; i++) {
             await ethers.provider.send("evm_mine")
         }
-        
-        let tx = await contract.connect(account2).rugPull()
-        let rc = await tx.wait()
-        let event = rc.events.find(event => event.event === 'RugPull')
-        let [pumpers, reward] = event.args
-        
-        expect(pumpers).to.be.eql([account2.address])
-        expect(reward).to.be.equal(ONE_ETH.mul(2))
+        await contract.rugPull()
+        const actions = await contract.getActions()
+
+        expect(actions.length).to.eql(3)
+
+        const action0 = actions[0]
+        expect(action0.sender).to.eql(owner.address);
+        expect(action0.balance).to.eql(pumpFee)
+        expect(action0.rugPull).to.eql(false)
+
+        const action1 = actions[1]
+        expect(action1.sender).to.eql(account1.address)
+        expect(action1.balance).to.eql(BigNumber.from(pumpFee).mul(2))
+        expect(action1.rugPull).to.eql(false)
+
+        const action2 = actions[2]
+        expect(action2.sender).to.eql(account1.address)
+        expect(action2.balance).to.eql(BigNumber.from(pumpFee).mul(2))
+        expect(action2.rugPull).to.eql(true)
     })
 })

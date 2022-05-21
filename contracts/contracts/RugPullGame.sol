@@ -16,7 +16,7 @@ contract RugPullGame is Ownable, ReentrancyGuard {
     event RugPullEvent(address payable sender, uint256 reward);
 
     uint256 public constant PUMP_FEE = 0.005 ether;
-    uint256 public constant RUG_PULL_BLOCKS = 20;
+    uint256 public constant RUG_PULL_BLOCKS = 10;
     uint256 public constant START_BLOCK = 5;
     uint256 public constant DEV_COMMISSION_DIV = 50; // 2%
 
@@ -29,8 +29,8 @@ contract RugPullGame is Ownable, ReentrancyGuard {
     }
 
     function pump() external nonReentrant payable {
-        require(msg.value >= PUMP_FEE, "Pump fee must be at least 0.005 BNB");
         require(block.number >= START_BLOCK, "Game has not started yet");
+        require(msg.value >= PUMP_FEE, "Not enough ether send");
 
         if (actions.length > 0) {
             Action memory lastAction = actions[actions.length - 1];
@@ -51,7 +51,7 @@ contract RugPullGame is Ownable, ReentrancyGuard {
         require(!lastAction.rugPull, "Game has finished");
         require(
             block.number >= lastAction.block + RUG_PULL_BLOCKS,
-            "At least 20 blocks must pass before a rug pull"
+            "Cannot do a rug pull just yet"
         );
 
         uint256 balance = address(this).balance;
