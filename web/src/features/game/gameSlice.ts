@@ -86,7 +86,7 @@ export const pump = (): AppThunk => async (dispatch, getState) => {
     const transactionParameters = {
         to: contractAddress,
         from: userAddress,
-        value: pumpFee,
+        value: web3.utils.toHex(pumpFee),
         data: contract.methods.pump().encodeABI(),
     }
 
