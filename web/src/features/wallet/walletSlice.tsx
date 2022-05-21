@@ -23,7 +23,7 @@ export const connectWallet = (): AppThunk => async (dispatch) => {
     // TODO warn window.ethereum is null
     dispatch(connecting())
 
-    // Switch to BSC.
+    // Switch to required chain.
     await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
         params: [{chainId: web3.utils.toHex(chainId)}],
@@ -37,7 +37,7 @@ export const connectWallet = (): AppThunk => async (dispatch) => {
 }
 
 export const checkWallet = (): AppThunk => async (dispatch) => {
-    const currentChainId = await web3.eth.net.getId()
+    const currentChainId = await window.ethereum.request({ method: 'eth_chainId' })
     if (currentChainId === chainId) {
         const accounts = await window.ethereum.request({
             method: "eth_accounts",
