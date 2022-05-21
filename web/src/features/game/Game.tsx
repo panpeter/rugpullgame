@@ -3,7 +3,7 @@ import {useAppDispatch, useAppSelector} from "../../app/hooks";
 import styles from "./Game.module.css";
 import {GameAction, GameCondition, load, pump, rugPull, unload} from "./gameSlice";
 import {checkWallet, ConnectionState, connectWallet} from "../wallet/walletSlice";
-import {contracts, isSameAddress, truncateAddress, web3} from "../../app/web3";
+import {contracts, formatEthAmount, isSameAddress, truncateAddress, web3} from "../../app/web3";
 import Countdown from "react-countdown";
 
 interface GameProps {
@@ -70,7 +70,7 @@ function CountdownPanel() {
                     current block is <BlockLink block={currentBlock}/>.
                 </p>
                 <h1><Countdown date={new Date(startTime)} daysInHours={true}/></h1>
-                <p>Initial reward pool is <b>{rewardPool} BNB</b> 😱</p>
+                <p>Initial reward pool is <b>{formatEthAmount(rewardPool)} BNB</b> 😱</p>
             </div>
         </div>
     )
@@ -88,7 +88,7 @@ function GameStarted() {
         <div className={styles.game}>
             <div className={`panel ${styles.game_progress_container}`}>
                 <p>Connect your wallet, pump and win</p>
-                <h1>{rewardPool} BNB</h1>
+                <h1>{formatEthAmount(rewardPool)} BNB</h1>
                 <p>Be the first!</p>
             </div>
             {feedbackView}
@@ -181,7 +181,7 @@ function GameProgress(props: GameProgressProps) {
             <div>
                 <p className="header">REWARD POOL</p>
                 <h2 className={styles.state}>
-                    {props.rewardPool}
+                    {formatEthAmount(props.rewardPool)}
                     {' '}
                     BNB
                 </h2>
@@ -198,7 +198,7 @@ interface RugPullProps {
 function RugPullPanel(props: RugPullProps) {
     const action = props.action
     const have = isSameAddress(action.sender, props.userAddress) ? "have" : "has"
-    const reward = Number.parseFloat(web3.utils.fromWei(action.balance, "ether")).toFixed(3)
+    const reward = formatEthAmount(action.balance)
 
     return (<div className={`panel ${styles.game_progress_container}`}>
         <h1>🚨 RUG PULL 🚨</h1>
@@ -226,7 +226,7 @@ interface PumpsProps {
 
 function Pumps(props: PumpsProps) {
     const pumpActions = props.actions.slice().reverse().map(action => {
-        const balance = Number.parseFloat(web3.utils.fromWei(action.balance, "ether")).toFixed(3)
+        const balance = formatEthAmount(action.balance)
         return <tr key={action.balance}>
             <td><BlockLink block={action.block}/></td>
             <td><Address address={action.sender} userAddress={props.userAddress}/></td>

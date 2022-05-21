@@ -181,7 +181,7 @@ export const gameSlice = createSlice({
         loadFinished: (state, action: PayloadAction<LoadFinishedActionPayload>) => {
             const payload = action.payload
 
-            state.rewardPool = parseRewardPool(payload.rewardPool)
+            state.rewardPool = payload.rewardPool
             state.pumps = payload.actions.filter(action => !action.rugPull)
             state.pumpFee = payload.pumpFee
             state.rugPullBlocks = payload.rugPullBlocks
@@ -228,7 +228,7 @@ export const gameSlice = createSlice({
             const gameAction = action.payload
             if (gameAction.rugPull) {
                 state.condition = GameCondition.RugPull
-                state.rewardPool = parseRewardPool(gameAction.balance)
+                state.rewardPool = gameAction.balance
                 state.rugPull = gameAction
             } else {
                 state.condition = GameCondition.Pumping
@@ -237,7 +237,7 @@ export const gameSlice = createSlice({
                     gameAction.block,
                     state.rugPullBlocks,
                 )
-                state.rewardPool = parseRewardPool(gameAction.balance)
+                state.rewardPool = gameAction.balance
                 state.pendingWinner = gameAction.sender
                 state.pumps.push(gameAction)
             }
@@ -265,10 +265,6 @@ export const gameSlice = createSlice({
         }
     },
 });
-
-const parseRewardPool = (reward: string) => {
-    return Number.parseFloat(web3.utils.fromWei(reward, "ether")).toFixed(3)
-}
 
 const countRugPullBlocksLeft = (
     currentBlock: number,
