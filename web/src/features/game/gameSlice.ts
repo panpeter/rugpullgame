@@ -83,12 +83,17 @@ export const pump = (): AppThunk => async (dispatch, getState) => {
     const contractAddress = getState().game.contractAddress
     const pumpFee = getState().game.pumpFee
     const contract = contracts.get(contractAddress)!
+    const transactionParameters = {
+        to: contractAddress,
+        from: userAddress,
+        value: pumpFee,
+        data: contract.methods.pump().encodeABI(),
+    }
+
     try {
-        await web3.eth.sendTransaction({
-            to: contractAddress,
-            from: userAddress,
-            value: pumpFee,
-            data: contract.methods.pump().encodeABI()
+        await window.ethereum.request({
+            method: 'eth_sendTransaction',
+            params: [transactionParameters],
         });
         // UI is updated when the event arrives.
     } catch (error) {
@@ -101,11 +106,15 @@ export const rugPull = (): AppThunk => async (dispatch, getState) => {
     const userAddress = getState().wallet.address
     const contractAddress = getState().game.contractAddress
     const contract = contracts.get(contractAddress)!
+    const transactionParameters = {
+        to: contractAddress,
+        from: userAddress,
+        data: contract.methods.rugPull().encodeABI(),
+    }
     try {
-        await web3.eth.sendTransaction({
-            to: contractAddress,
-            from: userAddress,
-            data: contract.methods.rugPull().encodeABI()
+        await window.ethereum.request({
+            method: 'eth_sendTransaction',
+            params: [transactionParameters],
         });
         // UI is updated when the event arrives.
     } catch (error) {
