@@ -25,6 +25,10 @@
     margin-top: 1.5rem;
 }
 
+.feedback a {
+    cursor: pointer;
+}
+
 .button_container {
     margin-top: 1.5rem;
 }
