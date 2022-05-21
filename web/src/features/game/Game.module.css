@@ -1,0 +1,35 @@
+.game {
+    text-align: center;
+}
+
+.loading, .metamask_error {
+    text-align: center;
+    margin-top: 6rem;
+}
+
+.game_progress_container {
+    margin-top: 0.75rem;
+}
+
+.game_state {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: space-around;
+}
+
+.state {
+    margin-top: 1.5rem;
+}
+
+.feedback {
+    margin-top: 1.5rem;
+}
+
+.button_container {
+    margin-top: 1.5rem;
+}
+
+.pumps td,
+.pumps th {
+    text-align: center;
+}
