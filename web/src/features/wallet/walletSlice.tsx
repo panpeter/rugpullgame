@@ -37,7 +37,8 @@ export const connectWallet = (): AppThunk => async (dispatch) => {
 }
 
 export const checkWallet = (): AppThunk => async (dispatch) => {
-    if (window.ethereum.networkVersion == chainId) {
+    const currentChainId = await web3.eth.net.getId()
+    if (currentChainId == chainId) {
         const accounts = await window.ethereum.request({
             method: "eth_accounts",
         })
