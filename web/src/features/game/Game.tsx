@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 import {useAppDispatch, useAppSelector} from "../../app/hooks";
 import styles from "./Game.module.css";
-import {GameAction, GameCondition, load, pump, rugPull, unload} from "./gameSlice";
+import {dismissFeedback, GameAction, GameCondition, load, pump, rugPull, unload} from "./gameSlice";
 import {checkWallet, ConnectionState, connectWallet} from "../wallet/walletSlice";
 import {contracts, formatEthAmount, isSameAddress, truncateAddress, web3} from "../../app/web3";
 import Countdown from "react-countdown";
@@ -214,8 +214,12 @@ interface FeedbackProps {
 }
 
 function Feedback(props: FeedbackProps) {
+    const dispatch = useAppDispatch()
+
     return <div className={styles.feedback}>
-        <code>{props.feedback}</code><br/><a href="" id="feedback_dismiss_link">Dismiss</a>
+        <code>{props.feedback}</code>
+        <br/>
+        <a onClick={() => dispatch(dismissFeedback())}>Dismiss</a>
     </div>
 }
 

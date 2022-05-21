@@ -262,6 +262,9 @@ export const gameSlice = createSlice({
         },
         actionErrorOccurred: (state, action: PayloadAction<string>) => {
             state.feedback = action.payload
+        },
+        dismissFeedback: (state) => {
+            state.feedback = undefined
         }
     },
 });
@@ -283,6 +286,9 @@ const {
     actionErrorOccurred,
 } = gameSlice.actions
 
-export const unload = gameSlice.actions.unload
+export const {
+    unload,
+    dismissFeedback,
+} = gameSlice.actions
 
 export default gameSlice.reducer;
