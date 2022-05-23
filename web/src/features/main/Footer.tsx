@@ -11,7 +11,7 @@ export function Footer() {
                 <a href="https://github.com/panpeter/rugpullgame">GitHub</a>.
             </p>
             <p>
-                For latest updates follow <a href="twitter">rugpullgame</a> on Twitter.
+                For latest updates follow <a href="https://twitter.com/rug_pull_game">@rug_pull_game</a> on Twitter.
             </p>
         </footer>
     );
