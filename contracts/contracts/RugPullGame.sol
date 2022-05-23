@@ -17,7 +17,7 @@ contract RugPullGame is Ownable, ReentrancyGuard {
 
     uint256 public constant PUMP_FEE = 0.005 ether;
     uint256 public constant RUG_PULL_BLOCKS = 20;
-    uint256 public constant START_BLOCK = 18108404;
+    uint256 public constant START_BLOCK = 1;
     uint256 public constant DEV_COMMISSION_DIV = 50; // 2%
 
     address payable private devAddress;
