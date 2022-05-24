@@ -85,10 +85,12 @@ contract RugPullGame is Ownable, ReentrancyGuard {
     }
 
     receive() external payable {
+        require(actions.length == 0);
         // Allow to bootstrap the game.
     }
 
     fallback() external payable {
+        require(actions.length == 0);
         // Allow to bootstrap the game.
     }
 }
