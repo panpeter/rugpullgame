@@ -73,7 +73,7 @@ function CountdownPanel() {
                     current block is <BlockLink block={currentBlock}/>.
                 </p>
                 <h1><Countdown date={new Date(startTime)} daysInHours={true}/></h1>
-                <p>Initial reward pool is <b>{formatEthAmount(rewardPool)} BNB</b> 😱</p>
+                <p>Initial reward pool is <b>{formatEthAmount(rewardPool)} MATIC</b> 😱</p>
             </div>
         </div>
     )
@@ -91,7 +91,7 @@ function GameStarted() {
         <div className={styles.game}>
             <div className={`panel ${styles.game_progress_container}`}>
                 <p>Connect your wallet, pump and win</p>
-                <h1>{formatEthAmount(rewardPool)} BNB</h1>
+                <h1>{formatEthAmount(rewardPool)} MATIC</h1>
                 <p>Be the first!</p>
             </div>
             {feedbackView}
@@ -186,7 +186,7 @@ function GameProgress(props: GameProgressProps) {
                 <h2 className={styles.state}>
                     {formatEthAmount(props.rewardPool)}
                     {' '}
-                    BNB
+                    MATIC
                 </h2>
             </div>
         </div>
@@ -208,7 +208,7 @@ function RugPullPanel(props: RugPullProps) {
         <p>
             <Address address={action.sender} userAddress={props.userAddress}/>
             {' '}
-            {have} run away with {reward} BNB</p>
+            {have} run away with {reward} MATIC</p>
     </div>)
 }
 
@@ -266,7 +266,7 @@ interface AddressProps {
 }
 
 function Address(props: AddressProps) {
-    const link = "https://bscscan.com/address/" + props.address
+    const link = "https://polygonscan.com/address/" + props.address
     let shortAddress = isSameAddress(props.address, props.userAddress) ? "you" : truncateAddress(props.address)
 
     return <a href={link} rel="noreferrer" target="_blank">{shortAddress}</a>
@@ -305,7 +305,7 @@ interface BlockLinkProps {
 }
 
 function BlockLink(props: BlockLinkProps) {
-    const currentBlockLink = `https://bscscan.com/block/${props.block}`
+    const currentBlockLink = `https://polygonscan.com/block/${props.block}`
 
     return <a target="_blank" rel="noreferrer" href={currentBlockLink}>{props.block.toString()}</a>
 }

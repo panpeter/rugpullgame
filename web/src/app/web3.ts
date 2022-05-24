@@ -6,12 +6,12 @@ import contractABI from "./contractABI";
 // const nodeUrl = "ws://127.0.0.1:8545/";
 
 // Test Net
-// export const chainId = 97
-// const nodeUrl = "wss://speedy-nodes-nyc.moralis.io/e102e9a126b69cda253c682b/bsc/testnet/ws";
+// export const chainId = 80001
+// const nodeUrl = "wss://speedy-nodes-nyc.moralis.io/e102e9a126b69cda253c682b/polygon/mumbai/ws";
 
 // Production
-export const chainId = 56
-const nodeUrl = "wss://speedy-nodes-nyc.moralis.io/e102e9a126b69cda253c682b/bsc/mainnet/ws";
+export const chainId = 137
+const nodeUrl = "wss://speedy-nodes-nyc.moralis.io/e102e9a126b69cda253c682b/polygon/mainnet/ws";
 
 const provider = new Web3.providers.WebsocketProvider(nodeUrl);
 export const web3 = new Web3(provider);
@@ -32,4 +32,4 @@ export const isSameAddress = (address1: string | undefined, address2: string | u
 }
 export const formatEthAmount = (
     amount: string
-) => Number.parseFloat(web3.utils.fromWei(amount, "ether")).toFixed(3)
+) => Number.parseFloat(web3.utils.fromWei(amount, "ether")).toFixed(0)

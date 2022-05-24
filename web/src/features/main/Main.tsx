@@ -11,10 +11,10 @@ export function Main() {
             <h1 className={styles.title}>RUG PULL</h1>
 
             <div className={`panel ${styles.rules}`}>
-                Game on BNB Chain with 3 simple rules:
+                Game on Polygon with 3 simple rules:
                 <ol>
-                    <li>Pump the reward pool with 0.005 BNB (~1.5 USD).</li>
-                    <li>Wait 20 blocks.</li>
+                    <li>Pump the reward pool with 1 MATIC.</li>
+                    <li>Wait 30 blocks.</li>
                     <li>If nobody else pumps, you can do a rug pull and grab the reward pool 💰</li>
                 </ol>
             </div>
