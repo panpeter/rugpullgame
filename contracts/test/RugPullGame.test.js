@@ -58,8 +58,8 @@ describe("RugPullGame contract", function () {
             await ethers.provider.send("evm_mine")
         }
 
-        const devCommission = pumpFee / devCommissionDiv
-        await expect(await contract.rugPull()).to.changeEtherBalance(account1, pumpFee - devCommission)
+        const devCommission = pumpFee.div(devCommissionDiv)
+        await expect(await contract.rugPull()).to.changeEtherBalance(account1, pumpFee.sub(devCommission))
     })
 
     it("sends commission to dev", async function () {
@@ -67,7 +67,7 @@ describe("RugPullGame contract", function () {
         for (let i = 0; i < rugPullBlocks; i++) {
             await ethers.provider.send("evm_mine")
         }
-        const devCommission = pumpFee / devCommissionDiv
+        const devCommission = pumpFee.div(devCommissionDiv)
 
         await expect(await contract.connect(account1).rugPull()).to.changeEtherBalance(owner, devCommission)
     })
