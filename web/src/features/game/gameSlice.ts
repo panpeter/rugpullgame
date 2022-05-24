@@ -65,7 +65,7 @@ export const load = (
     const pumpFee = await contract.methods.PUMP_FEE().call()
     const rewardPool = await web3.eth.getBalance(contractAddress)
     const rugPullBlocks = await contract.methods.RUG_PULL_BLOCKS().call()
-    const startBlock = await contract.methods.START_BLOCK().call()
+    const startBlock = await contract.methods.startBlock().call()
     const currentBlock = await web3.eth.getBlockNumber()
 
     dispatch(loadFinished({

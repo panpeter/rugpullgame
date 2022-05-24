@@ -17,10 +17,10 @@ contract RugPullGame is Ownable, ReentrancyGuard {
 
     uint256 public constant PUMP_FEE = 0.005 ether;
     uint256 public constant RUG_PULL_BLOCKS = 20;
-    uint256 public constant START_BLOCK = 18108404;
     uint256 public constant DEV_COMMISSION_DIV = 50; // 2%
 
-    address payable private devAddress;
+    uint256 public startBlock = 0;
+    address payable public devAddress;
 
     Action[] private actions;
 
@@ -29,7 +29,7 @@ contract RugPullGame is Ownable, ReentrancyGuard {
     }
 
     function pump() external nonReentrant payable {
-        require(block.number >= START_BLOCK, "Game has not started yet");
+        require(block.number >= startBlock, "Game has not started yet");
         require(msg.value >= PUMP_FEE, "Not enough ether send");
 
         if (actions.length > 0) {
@@ -64,6 +64,16 @@ contract RugPullGame is Ownable, ReentrancyGuard {
         actions.push(Action(lastAction.sender, block.number, balance, true));
 
         emit RugPullEvent(lastAction.sender, balance);
+    }
+
+    function startOver(uint256 newGameStartBlock) onlyOwner external {
+        if (actions.length > 0) {
+            Action memory lastAction = actions[actions.length - 1];
+            require(lastAction.rugPull, "Game has not finished yet");
+
+            delete actions;
+        }
+        startBlock = newGameStartBlock;
     }
 
     function setDevAddress(address payable _address) onlyOwner external {

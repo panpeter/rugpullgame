@@ -108,12 +108,12 @@ const contractABI = [
     },
     {
         "inputs": [],
-        "name": "START_BLOCK",
+        "name": "devAddress",
         "outputs": [
             {
-                "internalType": "uint256",
+                "internalType": "address payable",
                 "name": "",
-                "type": "uint256"
+                "type": "address"
             }
         ],
         "stateMutability": "view",
@@ -197,6 +197,32 @@ const contractABI = [
             }
         ],
         "name": "setDevAddress",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "startBlock",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "newGameStartBlock",
+                "type": "uint256"
+            }
+        ],
+        "name": "startOver",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"

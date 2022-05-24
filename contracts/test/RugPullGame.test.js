@@ -17,15 +17,6 @@ describe("RugPullGame contract", function () {
         return ethers.provider.getBalance(contract.address)
     }
 
-    const startGame = async () => {
-        const blockNumber = await ethers.provider.getBlockNumber()
-        const startBlock = await contract.START_BLOCK()
-        const blockLeft = startBlock - blockNumber
-        for (let i = 0; i < blockLeft; i++) {
-            await ethers.provider.send("evm_mine")
-        }
-    }
-
     beforeEach(async function () {
         const contractFactory = await ethers.getContractFactory("RugPullGame")
         contract = await contractFactory.deploy()
@@ -39,22 +30,20 @@ describe("RugPullGame contract", function () {
     })
 
     it("reverts when game has not started yet", async function () {
+        await contract.startOver(5)
         expect(contract.pump()).to.be.revertedWith("Game has not started yet")
     })
 
     it("reverts when pumper does not pay fee", async function () {
-        await startGame()
         expect(contract.pump()).to.be.revertedWith("Not enough ether send")
     })
 
     it("increases the balance when it's pumped", async function () {
-        startGame()
         await contract.pump({value: pumpFee})
         expect(await contractBalance()).to.equal(pumpFee)
     })
 
     it("reverts rug pull when not enough blocks passed", async function () {
-        startGame()
         await contract.pump({value: pumpFee})
         for (let i = 0; i < rugPullBlocks - 2; i++) {
             await ethers.provider.send("evm_mine")
@@ -64,7 +53,6 @@ describe("RugPullGame contract", function () {
     })
 
     it("allows to rug pull", async function () {
-        startGame()
         await contract.connect(account1).pump({value: pumpFee})
         for (let i = 0; i < rugPullBlocks; i++) {
             await ethers.provider.send("evm_mine")
@@ -75,7 +63,6 @@ describe("RugPullGame contract", function () {
     })
 
     it("sends commission to dev", async function () {
-        startGame()
         await contract.connect(account1).pump({value: pumpFee})
         for (let i = 0; i < rugPullBlocks; i++) {
             await ethers.provider.send("evm_mine")
@@ -99,14 +86,12 @@ describe("RugPullGame contract", function () {
     })
 
     it("emits pump event", async function () {
-        startGame()
         await expect(await contract.pump({value: pumpFee}))
             .to.emit(contract, 'PumpEvent')
             .withArgs(owner.address, pumpFee);
     })
 
     it("emits pump event with correct balance", async function () {
-        startGame()
         await contract.pump({value: pumpFee})
         await expect(await contract.pump({value: pumpFee}))
             .to.emit(contract, 'PumpEvent')
@@ -114,7 +99,6 @@ describe("RugPullGame contract", function () {
     })
 
     it("emits rug pull event", async function () {
-        startGame()
         await contract.pump({value: pumpFee})
         for (let i = 0; i < rugPullBlocks; i++) {
             await ethers.provider.send("evm_mine")
@@ -125,7 +109,6 @@ describe("RugPullGame contract", function () {
     })
 
     it("keeps actions history", async function () {
-        startGame()
         await contract.pump({value: pumpFee})
         await contract.connect(account1).pump({value: pumpFee})
         for (let i = 0; i < rugPullBlocks; i++) {
@@ -150,5 +133,22 @@ describe("RugPullGame contract", function () {
         expect(action2.sender).to.eql(account1.address)
         expect(action2.balance).to.eql(BigNumber.from(pumpFee).mul(2))
         expect(action2.rugPull).to.eql(true)
+    })
+
+    it("cannot start over when players are pumping", async function () {
+        await contract.pump({value: pumpFee})
+        expect(contract.startOver(100)).to.be.revertedWith("Game has not finished yet")
+    })
+
+    it("starts over", async function () {
+        await contract.pump({value: pumpFee})
+        for (let i = 0; i < rugPullBlocks; i++) {
+            await ethers.provider.send("evm_mine")
+        }
+        await contract.rugPull()
+        await contract.startOver(100)
+        const actions = await contract.getActions()
+
+        expect(actions.length).to.eql(0)
     })
 })
