@@ -1,16 +1,16 @@
 # Rug Pull Game
 
-Rug Pull game is developed by Piotr Wilczek as a side project to dive into smart contracts and web3. It's been deployed on BNB blockchain and its address is [0xB55DD5b91Ef815cEc527e054B67f4D298111aD9F](https://bscscan.com/address/0xd395F51969A9d1A91F9ee726bf25303d9FEE4c2E). The website is available at https://rugpullgame.xyz/
+Rug Pull game is developed by Piotr Wilczek as a side project to dive into smart contracts and web3. It's been deployed on Polygon blockchain and its address is [0x3bc9Fa2CbA7090aa3Eb7F8d24C66098B5E429312](https://polygonscan.com/address/0x3bc9Fa2CbA7090aa3Eb7F8d24C66098B5E429312). The website is available at https://rugpullgame.xyz/
 
 ## Rules of the game
 
 The game is based on the [bidding fee auction](https://en.wikipedia.org/wiki/Bidding_fee_auction).
 
-To participate the player has to "pump" by calling the pump contract method with 0.005 BNB (~1.5 USD). This 0.005 BNB is added to the reward pool.
+To participate the player has to "pump" by calling the pump contract method with 1% of the reward pool. This is added to the reward pool.
 
-After 20 blocks, if nobody else pumps, the player can call do the rug pull by calling "rugPull" method and receive the reward pool. Small portion is transfered to developer account to support further work.
+After 30 blocks, if nobody else pumps, the player can call do the rug pull by calling "rugPull" method and receive the reward pool. Small portion is transferred to developer account to support further work.
 
-If someone else pumps, they need to wait 20 blocks, and if nobody else pumps they can call "rugPull" method and receive the reward pull. And so on...
+If someone else pumps, they need to wait 30 blocks, and if nobody else pumps they can call "rugPull" method and receive the reward pull. And so on...
 
 ## Playing script
 
@@ -22,13 +22,13 @@ To initiate the game there is a [play.js](https://github.com/panpeter/rugpullgam
 npx hardhat test
 
 // Deploy the contract to the mainnet 
-npx hardhat run scripts/deploy.js --network bnb_mainnet
+npx hardhat run scripts/deploy.js --network polygon_mainnet
 
-// Verify the contract on BscScan
-npx hardhat verify --network bnb_mainnet [contract_address]
+// Verify the contract on PolygonScan
+npx hardhat verify --network polygon_mainnet [contract_address]
 
 // Run playing script
-npx hardhat run scripts/play.js --network bnb_mainnet
+npx hardhat run scripts/play.js --network polygon_mainnet
 ```
 
 ## Tools used in this project
