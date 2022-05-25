@@ -17,7 +17,7 @@ const provider = new Web3.providers.WebsocketProvider(nodeUrl);
 export const web3 = new Web3(provider);
 
 const contractAddresses = [
-    "0xB55DD5b91Ef815cEc527e054B67f4D298111aD9F"
+    "0x3bc9Fa2CbA7090aa3Eb7F8d24C66098B5E429312"
 ]
 export const contracts = new Map(
     contractAddresses.map(address => {
