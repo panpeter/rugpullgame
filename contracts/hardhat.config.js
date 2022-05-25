@@ -50,6 +50,6 @@ module.exports = {
       }
    },
    etherscan: {
-      apiKey: BNBSCAN_MAINNET_KEY,
+      apiKey: POLYGONSCAN_KEY,
    },
 }
