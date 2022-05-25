@@ -73,7 +73,7 @@ function CountdownPanel() {
                     current block is <BlockLink block={currentBlock}/>.
                 </p>
                 <h1><Countdown date={new Date(startTime)} daysInHours={true}/></h1>
-                <p>Initial reward pool is <b>{formatEthAmount(rewardPool)} gwei</b> 😱</p>
+                <p>Initial reward pool is <b>{formatEthAmount(rewardPool)} gwei</b> 💰</p>
             </div>
         </div>
     )
