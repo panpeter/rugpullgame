@@ -68,9 +68,9 @@ function CountdownPanel() {
         <div className={styles.game}>
             <div className={`panel ${styles.game_progress_container}`}>
                 <p>
-                    Game starts on block {startBlock},
+                    Game starts on block <BlockLink block={startBlock}/>,
                     {' '}
-                    current block is <BlockLink block={currentBlock}/>.
+                    current block is {currentBlock}.
                 </p>
                 <h1><Countdown date={new Date(startTime)} daysInHours={true}/></h1>
                 <p>Initial reward pool is <b>{formatEthAmount(rewardPool)} gwei</b> 💰</p>
