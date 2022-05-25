@@ -191,7 +191,7 @@ export const gameSlice = createSlice({
             state.startBlock = payload.startBlock
             state.currentBlock = payload.currentBlock
             const remainingBlocks = payload.startBlock - payload.currentBlock
-            const avgBlockTimeInSeconds = 3.02
+            const avgBlockTimeInSeconds = 2.10
             const gameStartsInSeconds = remainingBlocks * avgBlockTimeInSeconds
             const startTime = new Date()
             startTime.setSeconds(startTime.getSeconds() + gameStartsInSeconds)
