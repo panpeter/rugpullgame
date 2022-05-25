@@ -13,7 +13,7 @@ export function Main() {
             <div className={`panel ${styles.rules}`}>
                 Game on Polygon with 3 simple rules:
                 <ol>
-                    <li>Pump the reward pool with 1 MATIC.</li>
+                    <li>Pump the reward pool.</li>
                     <li>Wait 30 blocks.</li>
                     <li>If nobody else pumps, you can do a rug pull and grab the reward pool 💰</li>
                 </ol>

@@ -24,7 +24,7 @@ interface GameState {
     condition: GameCondition,
     contractAddress: string
     rewardPool: string,
-    pumpFee: string,
+    pumpFeeDiv: string,
     rugPullBlocks: number,
     feedback?: string,
     pumps: GameAction[]
@@ -43,7 +43,7 @@ const initialState: GameState = {
     condition: GameCondition.NotLoaded,
     contractAddress: "",
     rewardPool: "0",
-    pumpFee: "0",
+    pumpFeeDiv: "100",
     rugPullBlocks: 0,
     feedback: undefined,
     pumps: [],
@@ -62,7 +62,7 @@ export const load = (
 
     const contract = contracts.get(contractAddress)!
     const actions: GameAction[] = await contract.methods.getActions().call()
-    const pumpFee = await contract.methods.PUMP_FEE().call()
+    const pumpFeeDiv = await contract.methods.PUMP_FEE_DIV().call()
     const rewardPool = await web3.eth.getBalance(contractAddress)
     const rugPullBlocks = await contract.methods.RUG_PULL_BLOCKS().call()
     const startBlock = await contract.methods.startBlock().call()
@@ -70,7 +70,7 @@ export const load = (
 
     dispatch(loadFinished({
         actions: actions,
-        pumpFee: pumpFee,
+        pumpFeeDiv: pumpFeeDiv,
         rewardPool: rewardPool,
         rugPullBlocks: rugPullBlocks,
         startBlock: startBlock,
@@ -81,8 +81,10 @@ export const load = (
 export const pump = (): AppThunk => async (dispatch, getState) => {
     const userAddress = getState().wallet.address
     const contractAddress = getState().game.contractAddress
-    const pumpFee = getState().game.pumpFee
+    const pumpFeeDiv = getState().game.pumpFeeDiv
     const contract = contracts.get(contractAddress)!
+    const balance = getState().game.rewardPool
+    const pumpFee = web3.utils.toBN(balance).div(web3.utils.toBN(pumpFeeDiv))
     const transactionParameters = {
         to: contractAddress,
         from: userAddress,
@@ -163,7 +165,7 @@ export const handleNewBlockEvent = (
 
 interface LoadFinishedActionPayload {
     actions: Array<GameAction>,
-    pumpFee: string,
+    pumpFeeDiv: string,
     rewardPool: string,
     rugPullBlocks: number,
     startBlock: number,
@@ -183,7 +185,7 @@ export const gameSlice = createSlice({
 
             state.rewardPool = payload.rewardPool
             state.pumps = payload.actions.filter(action => !action.rugPull)
-            state.pumpFee = payload.pumpFee
+            state.pumpFeeDiv = payload.pumpFeeDiv
             state.rugPullBlocks = payload.rugPullBlocks
 
             state.startBlock = payload.startBlock

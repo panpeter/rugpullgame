@@ -82,7 +82,7 @@ const contractABI = [
     },
     {
         "inputs": [],
-        "name": "PUMP_FEE",
+        "name": "PUMP_FEE_DIV",
         "outputs": [
             {
                 "internalType": "uint256",
@@ -224,7 +224,7 @@ const contractABI = [
         ],
         "name": "startOver",
         "outputs": [],
-        "stateMutability": "nonpayable",
+        "stateMutability": "payable",
         "type": "function"
     },
     {

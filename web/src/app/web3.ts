@@ -32,4 +32,4 @@ export const isSameAddress = (address1: string | undefined, address2: string | u
 }
 export const formatEthAmount = (
     amount: string
-) => Number.parseFloat(web3.utils.fromWei(amount, "ether")).toFixed(0)
+) => Number.parseFloat(web3.utils.fromWei(amount, "gwei")).toFixed(0)

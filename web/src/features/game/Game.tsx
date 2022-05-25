@@ -73,7 +73,7 @@ function CountdownPanel() {
                     current block is <BlockLink block={currentBlock}/>.
                 </p>
                 <h1><Countdown date={new Date(startTime)} daysInHours={true}/></h1>
-                <p>Initial reward pool is <b>{formatEthAmount(rewardPool)} MATIC</b> 😱</p>
+                <p>Initial reward pool is <b>{formatEthAmount(rewardPool)} gwei</b> 😱</p>
             </div>
         </div>
     )
@@ -91,7 +91,7 @@ function GameStarted() {
         <div className={styles.game}>
             <div className={`panel ${styles.game_progress_container}`}>
                 <p>Connect your wallet, pump and win</p>
-                <h1>{formatEthAmount(rewardPool)} MATIC</h1>
+                <h1>{formatEthAmount(rewardPool)} gwei</h1>
                 <p>Be the first!</p>
             </div>
             {feedbackView}
@@ -186,7 +186,7 @@ function GameProgress(props: GameProgressProps) {
                 <h2 className={styles.state}>
                     {formatEthAmount(props.rewardPool)}
                     {' '}
-                    MATIC
+                    gwei
                 </h2>
             </div>
         </div>
@@ -208,7 +208,7 @@ function RugPullPanel(props: RugPullProps) {
         <p>
             <Address address={action.sender} userAddress={props.userAddress}/>
             {' '}
-            {have} run away with {reward} MATIC</p>
+            {have} run away with {reward} gwei</p>
     </div>)
 }
 
