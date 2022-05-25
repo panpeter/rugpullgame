@@ -15,9 +15,9 @@ contract RugPullGame is Ownable, ReentrancyGuard {
     event PumpEvent(address payable sender, uint256 balance);
     event RugPullEvent(address payable sender, uint256 reward);
 
-    uint256 public constant PUMP_FEE = 1 ether;
+    uint256 public constant PUMP_FEE_DIV = 100; // 1%
     uint256 public constant RUG_PULL_BLOCKS = 30;
-    uint256 public constant DEV_COMMISSION_DIV = 50; // 2%
+    uint256 public constant DEV_COMMISSION_DIV = 10; // 10%
 
     uint256 public startBlock = 0;
     address payable public devAddress;
@@ -30,14 +30,18 @@ contract RugPullGame is Ownable, ReentrancyGuard {
 
     function pump() external nonReentrant payable {
         require(block.number >= startBlock, "Game has not started yet");
-        require(msg.value >= PUMP_FEE, "Not enough ether send");
+
+        uint256 balance = address(this).balance;
+        if (msg.value < balance) {
+            uint256 minPump = (balance - msg.value) / PUMP_FEE_DIV;
+            require(msg.value >= minPump, "Not enough ether send");
+        }
 
         if (actions.length > 0) {
             Action memory lastAction = actions[actions.length - 1];
             require(!lastAction.rugPull, "Game has finished");
         }
 
-        uint256 balance = address(this).balance;
         address payable sender = payable(msg.sender);
 
         actions.push(Action(sender, block.number, balance, false));
@@ -66,7 +70,7 @@ contract RugPullGame is Ownable, ReentrancyGuard {
         emit RugPullEvent(lastAction.sender, balance);
     }
 
-    function startOver(uint256 newGameStartBlock) onlyOwner external {
+    function startOver(uint256 newGameStartBlock) onlyOwner external payable {
         if (actions.length > 0) {
             Action memory lastAction = actions[actions.length - 1];
             require(lastAction.rugPull, "Game has not finished yet");

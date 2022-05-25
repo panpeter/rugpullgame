@@ -9,7 +9,7 @@ describe("RugPullGame contract", function () {
     let owner
     let account1
     let account2
-    let pumpFee
+    let pumpFeeDiv
     let rugPullBlocks
     let devCommissionDiv
 
@@ -24,7 +24,7 @@ describe("RugPullGame contract", function () {
         owner = signers[0]
         account1 = signers[1]
         account2 = signers[2]
-        pumpFee = await contract.PUMP_FEE()
+        pumpFeeDiv = await contract.PUMP_FEE_DIV()
         rugPullBlocks = await contract.RUG_PULL_BLOCKS()
         devCommissionDiv = await contract.DEV_COMMISSION_DIV()
     })
@@ -34,16 +34,50 @@ describe("RugPullGame contract", function () {
         expect(contract.pump()).to.be.revertedWith("Game has not started yet")
     })
 
-    it("reverts when pumper does not pay fee", async function () {
+    it("reverts when pumper does not send any fee", async function () {
+        await owner.sendTransaction({
+            to: contract.address,
+            value: ethers.utils.parseEther("1"),
+        });
+
         expect(contract.pump()).to.be.revertedWith("Not enough ether send")
     })
 
-    it("increases the balance when it's pumped", async function () {
+    it("reverts when pump is less than 1% of pool", async function () {
+        await owner.sendTransaction({
+            to: contract.address,
+            value: ethers.utils.parseEther("1"),
+        });
+
+        const pumpFee = ethers.utils.parseEther("0.0090")
+
+        expect(contract.pump()).to.be.revertedWith("Not enough ether send")
+    })
+
+    it("allows to pump with 1% of pool", async function () {
+        await owner.sendTransaction({
+            to: contract.address,
+            value: ethers.utils.parseEther("1"),
+        });
+
+        const pumpFee = ethers.utils.parseEther("0.01")
         await contract.pump({value: pumpFee})
-        expect(await contractBalance()).to.equal(pumpFee)
+        expect(await contractBalance()).to.equal(ethers.utils.parseEther("1.01"))
+    })
+
+    it("allows to pump with more than 1% of pool", async function () {
+        await owner.sendTransaction({
+            to: contract.address,
+            value: ethers.utils.parseEther("1"),
+        });
+
+        const pumpFee = ethers.utils.parseEther("0.02")
+        await contract.pump({value: pumpFee})
+        expect(await contractBalance()).to.equal(ethers.utils.parseEther("1.02"))
     })
 
     it("reverts rug pull when not enough blocks passed", async function () {
+        const pumpFee = ethers.utils.parseEther("1")
         await contract.pump({value: pumpFee})
         for (let i = 0; i < rugPullBlocks - 2; i++) {
             await ethers.provider.send("evm_mine")
@@ -53,6 +87,7 @@ describe("RugPullGame contract", function () {
     })
 
     it("allows to rug pull", async function () {
+        const pumpFee = ethers.utils.parseEther("1")
         await contract.connect(account1).pump({value: pumpFee})
         for (let i = 0; i < rugPullBlocks; i++) {
             await ethers.provider.send("evm_mine")
@@ -63,6 +98,7 @@ describe("RugPullGame contract", function () {
     })
 
     it("sends commission to dev", async function () {
+        const pumpFee = ethers.utils.parseEther("1")
         await contract.connect(account1).pump({value: pumpFee})
         for (let i = 0; i < rugPullBlocks; i++) {
             await ethers.provider.send("evm_mine")
@@ -73,6 +109,7 @@ describe("RugPullGame contract", function () {
     })
 
     it("transfers whole balance when a pumper pulls the rug", async function () {
+        const pumpFee = ethers.utils.parseEther("1")
         await contract.connect(account1).pump({value: pumpFee})
         await contract.connect(account2).pump({value: pumpFee})
         await contract.connect(account1).pump({value: pumpFee})
@@ -86,12 +123,14 @@ describe("RugPullGame contract", function () {
     })
 
     it("emits pump event", async function () {
+        const pumpFee = ethers.utils.parseEther("1")
         await expect(await contract.pump({value: pumpFee}))
             .to.emit(contract, 'PumpEvent')
             .withArgs(owner.address, pumpFee);
     })
 
     it("emits pump event with correct balance", async function () {
+        const pumpFee = ethers.utils.parseEther("1")
         await contract.pump({value: pumpFee})
         await expect(await contract.pump({value: pumpFee}))
             .to.emit(contract, 'PumpEvent')
@@ -99,6 +138,7 @@ describe("RugPullGame contract", function () {
     })
 
     it("emits rug pull event", async function () {
+        const pumpFee = ethers.utils.parseEther("1")
         await contract.pump({value: pumpFee})
         for (let i = 0; i < rugPullBlocks; i++) {
             await ethers.provider.send("evm_mine")
@@ -109,6 +149,7 @@ describe("RugPullGame contract", function () {
     })
 
     it("keeps actions history", async function () {
+        const pumpFee = ethers.utils.parseEther("1")
         await contract.pump({value: pumpFee})
         await contract.connect(account1).pump({value: pumpFee})
         for (let i = 0; i < rugPullBlocks; i++) {
@@ -136,11 +177,13 @@ describe("RugPullGame contract", function () {
     })
 
     it("cannot start over when players are pumping", async function () {
+        const pumpFee = ethers.utils.parseEther("1")
         await contract.pump({value: pumpFee})
         expect(contract.startOver(100)).to.be.revertedWith("Game has not finished yet")
     })
 
     it("starts over", async function () {
+        const pumpFee = ethers.utils.parseEther("1")
         await contract.pump({value: pumpFee})
         for (let i = 0; i < rugPullBlocks; i++) {
             await ethers.provider.send("evm_mine")
